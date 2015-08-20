@@ -18,6 +18,10 @@ pip install -U https://github.com/RandomOrg/JSON-RPC-Python/zipball/master
 
 pip install -U https://github.com/google/google-visualization-python/zipball/master
 
+## or use my docker images
+
+docker run -it lorinma/simcon bash
+
 ## Spreadsheet and other setup
 ### Spreadsheet:
 It requires a credential files to use data on google spreadsheet
