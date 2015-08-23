@@ -145,6 +145,7 @@ def prioritizeBacklogOfSubByOwnerByTime(dfs, sub, owner, gameTime):
     count = dataframe_row_count(backlog)
     radInt = 0
     if count > 1:
+        print "in", owner, "'s knowledge", sub, "has more than 1 option"
         # randomly select a row from the result if there're more than 1 row
         try:
             r = RandomOrgClient(rand_key())
@@ -199,7 +200,9 @@ def wpTrack(dfs):
                                                                                                                'Workprocedure'],
                                                                                                            how='left')
     combined = combined.sort(columns=['SubName', 'gameTime']).reset_index(drop=True)
-    combined['Day'] = pd.to_timedelta(combined['gameTime'], unit='d') + datetime.date.today()
+    # make sure all the simulation results have the same start day
+    combined['Day'] = pd.to_timedelta(combined['gameTime'], unit='d') + datetime.date(2015, 8, 21)
+    # combined['Day'] = pd.to_timedelta(combined['gameTime'], unit='d') + datetime.date.today()
     # mongo db doesn't accept the date format in python
     combined['Day'] = combined['Day'].apply(str)
     combined['WPName'] = combined['Floor'].apply(str) + '-' + combined['Workprocedure']

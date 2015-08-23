@@ -42,8 +42,10 @@ def meeting(dfs, gameTime):
     for sub in subs['SubName']:
         # do plan for everybody!using the yesterday's info
         plan(dfs, sub, gameTime - 1)
-    newMeeting = {'gameTime': gameTime}
-    dfs['Log_Meeting'].loc[helper.dataframe_row_count(dfs['Log_Meeting'])] = newMeeting
+    # the initial meeting doesn't count in the log
+    if gameTime>1:
+        new_meeting = {'gameTime': gameTime}
+        dfs['Log_Meeting'].loc[helper.dataframe_row_count(dfs['Log_Meeting'])] = new_meeting
 
 
 def syncWPStatus_among_subs(dfs, subs, gameTime):

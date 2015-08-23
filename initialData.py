@@ -67,6 +67,7 @@ def load_all_data(db):
 # initial wps
 # initial design log
 # initial the status of WPs, results are the subs' perception of each WP's status
+# this is necessary to be invoked in every round of game, because it makes sure the same WP in different round has different ID
 def initialWorkpackage(dfs):
     # initialize workpackage
     dfs['Fact_WorkPackage'] = dfs['Initial_Design'][['Floor', 'Workprocedure']]
@@ -92,6 +93,7 @@ def initialWorkpackage(dfs):
 
 
 # derive the workpackage dependencies using SQL-like join operation
+# this is necessary to be invoked in every round of game, because the WP is regenerated in every round and has different WPID
 def initialWPDependency(dfs):
     count = helper.dataframe_row_count(dfs['Fact_WProDependency'])
     if count == 0:

@@ -12,7 +12,7 @@ on Mac: conda install pyopenssl
 on Ubuntu: apt-get install -y --force-yes --no-install-recommends python-openssl libssl-dev libffi-dev
 
 ### Then:
-pip install gspread numpy pandas oauth2client cryptography
+pip install gspread numpy pandas oauth2client cryptography requests
 
 pip install -U https://github.com/RandomOrg/JSON-RPC-Python/zipball/master       
 

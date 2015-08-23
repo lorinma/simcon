@@ -36,24 +36,23 @@ def simulation():
     t1 = time.clock() - t0
     print 'loadDataFromGSheet takes', t1, 'seconds'
     i = 1
-    projects = dfs['Fact_Project'][
-        ['Username', 'DesignChangeVariation', 'DesignChangeCycle', 'QualityCheckPassRate', 'ProjectName',
-         'productionRateChangeStd', 'meetingCycle', 'Email']]
+    # only load unrun projects
+    projects = dfs['Fact_Project'][dfs['Fact_Project'].ProjectID==''].reset_index(drop=True)[['Username', 'DesignChangeVariation', 'DesignChangeCycle', 'QualityCheckPassRate', 'ProjectName', 'productionRateChangeStd', 'meetingCycle', 'Email']]
     results = []
     while helper.dataframe_row_count(projects) > 0:
         dfs['Fact_Project'] = projects[(projects.index == 0)].reset_index(drop=True)
         print 'start a new game', i
         result = new_game(dfs)
         result['ProjectID'] = uuid.uuid1().hex
-        result['WPName'] = str(i) + '-' + result['WPName']
+        # result['WPName'] = str(i) + '-' + result['WPName']
         result = result[["WPName", "Day", "gameTime", "status", "percent", "SubName", "Workprocedure", "Floor", "WPID", "collision", "notMature",'rework','designChange','meeting','ProjectID']]
         result.to_csv(str(i)+'result.csv', sep='\t', encoding='utf-8', index=False)
         print 'simulation result saved as', str(i)+'result.csv'
-        results.append(result)
+        # results.append(result)
         projects = projects.ix[1:].reset_index(drop=True)
         i += 1
-    data=pd.concat(results).reset_index(drop=True)
-    uploadDataToGspread(data)
+    # data=pd.concat(results).reset_index(drop=True)
+    # uploadDataToGspread(data)
 
 def load_dataframe_from_spreadsheet():
     spreadsheet = inD.load_db()
@@ -89,7 +88,6 @@ def run(dfs):
     gameTime = 1
     while True:
         print 'Day', gameTime
-        meeting_check(dfs, gameTime)
         aDay(dfs, gameTime)
         gameTime += 1
         # if helper.rowCount(helper.remainingWPStatusByTime(dfs,gameTime))==0:
@@ -111,7 +109,7 @@ def meeting_check(dfs, gameTime):
 
 # iterate every sub, at the end of the day, everyone do a plan for tomorrow based on their own assumption
 def aDay(dfs, gameTime):
-    # import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
+    meeting_check(dfs, gameTime)
     # get the latest status yesterday
     wps = helper.latestWPStatusByTime(dfs, gameTime - 1)
     subs = dfs['Fact_Sub']['SubName']
