@@ -27,7 +27,6 @@ import initialData as inD
 import events
 import helper
 import uuid
-import pandas as pd
 
 
 def simulation():
@@ -90,7 +89,8 @@ def run(dfs):
         print 'Day', gameTime
         aDay(dfs, gameTime)
         gameTime += 1
-        # if helper.rowCount(helper.remainingWPStatusByTime(dfs,gameTime))==0:
+        # if quality check is required, then make sure all the wps have passed the check
+        # otherwise, make sure all the wps have been finished
         if helper.gameEnd(dfs, gameTime):
             break
     print 'game ends!'
@@ -103,7 +103,7 @@ def meeting_check(dfs, gameTime):
             # do the meeting every cycle time
             events.meeting(dfs, gameTime)
     elif gameTime == 1:
-        # if no regular meetings, only do the meeting once at the begining of the game
+        # if no regular meetings, only do the meeting once at the beginning of the game
         events.meeting(dfs, gameTime)
 
 

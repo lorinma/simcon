@@ -52,9 +52,9 @@ def syncWPStatus_among_subs(dfs, subs, gameTime):
     """
     use the true wp status to update every subs knowledge of WPStatus, input a pandas data frame of subs
 
-    :param dfs:
-    :param subs:
-    :param gameTime:
+    :param dfs: the entire data set
+    :param subs: subs that share the klg
+    :param gameTime: game time
     :return:
     """
     # get the accurate klg of wpstatus of these subs

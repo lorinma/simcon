@@ -123,9 +123,11 @@ def latestPlanByOwnerByTime(dfs, owner, gameTime):
     latest = latest.groupby(['WPID'], sort=False).last().reset_index()
     return latest
 
+
 def rand_key():
     json_key = json.load(open('OAuth2Credentials.json'))
     return json_key['random_org_key']
+
 
 # first choose the WPs in lowest floor, then randomly pick one if there're more than 1 in the lowest floor
 # 1 record of WP with startTime and other info
@@ -328,7 +330,6 @@ def ToGvizDataTable(dataframe):
     return data_table.ToJSon(columns_order=(
         "WPName", "Day", "gameTime", "status", "percent", "SubName", "Workprocedure", "Floor", "WPID", "collision",
         "notMature", 'rework', 'designChange', 'meeting'), order_by="WPName")
-
 
 # def loadMongo(dfs, oid):
 #     from pymongo import MongoClient
