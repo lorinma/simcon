@@ -20,8 +20,10 @@
 # USA *
 # *
 # **************************************************************************
+
 __author__ = 'Ling Ma'
 
+import datetime
 import pandas as pd
 import numpy as np
 from sqlalchemy import *
@@ -51,8 +53,8 @@ class Project:
             print "day", day
             self.a_day(day)
             day += 1
-        project = Table('Fact_Project', MetaData(), autoload=True, autoload_with=self.engine)
-        self.engine.execute(project.update().where(project.c.ID == self.id).values(Done=1))
+            # project = Table('Fact_Project', MetaData(), autoload=True, autoload_with=self.engine)
+            # self.engine.execute(project.update().where(project.c.ID == self.id).values(Done=1))
 
     def all_done(self):
         ids = list()
@@ -147,14 +149,20 @@ class Project:
         backlog = pd.read_sql_query(
             "SELECT WorkPackageID,ProjectID FROM True_WorkPackageBacklog WHERE ProjectID=" + str(self.id),
             self.engine)
-        workable = wps.merge(backlog, on=['WorkPackageID', 'ProjectID'], how='inner').reset_index(drop=True)
+        workable = wps[wps.ProductionRate > 0].merge(backlog, on=['WorkPackageID', 'ProjectID'],
+                                                     how='inner').reset_index(drop=True)
+        # mark the begining day of workpackages
+        workable[workable.RemainingQty == workable.TotalQty][['ProjectID', 'WorkPackageID', 'Day']].to_sql(
+            name="Event_WorkBegin", con=self.engine, if_exists='append', index=False)
         workable['RemainingQty'] = workable['RemainingQty'] - workable['ProductionRate']
         workable.loc[workable['RemainingQty'] < 0, 'RemainingQty'] = 0
         self.log_wp(workable)
 
         # upload retrace
-        wps[~wps.WorkPackageID.isin(workable.WorkPackageID)][['ProjectID', 'WorkPackageID', 'Day']].to_sql(
-            name="Event_Retrace", con=self.engine, if_exists='append', index=False)
+        retrace = wps[~wps.WorkPackageID.isin(workable.WorkPackageID)].reset_index(drop=True)
+        retrace[['ProjectID', 'WorkPackageID', 'Day']].to_sql(name="Event_Retrace", con=self.engine, if_exists='append',
+                                                              index=False)
+        self.log_wp(retrace)
 
     def norm_random(self, mean, std):
         try:
@@ -179,6 +187,14 @@ class Project:
         if self.design_change_cycle == 0 or day == 1 or (
                     day - 1) % self.design_change_cycle != 0 or self.design_change_variation == 0:
             return 0
+        project_completeness = pd.read_sql_query(
+            "SELECT * FROM True_ProjectCompleteness WHERE ProjectID=" + str(self.id),
+            self.engine).TotalCompleteness.tolist()
+        # if most of the work in the project has been completed, then the design will not be changed
+        change_flag = np.random.binomial(1, project_completeness[0], 1)[0]
+        if change_flag == 0:
+            return 0
+
         wp = pd.read_sql_query("SELECT * FROM True_WorkPackageQualityUncheckRandom WHERE ProjectID=" + str(self.id),
                                self.engine)
         if len(wp['WorkPackageID']) == 0:
@@ -188,6 +204,7 @@ class Project:
         while not qty > 0:
             qty = self.norm_random(wp['TotalQty'][0], wp['PerformanceStd'][0])
         wp['TotalQty'] = qty
+        wp['RemainingQty'] = qty
         self.log_wp(wp)
         wp[['ProjectID', 'WorkPackageID', 'TotalQty', 'Day']].to_sql(name="Event_DesignChange", con=self.engine,
                                                                      if_exists='append', index=False)
@@ -203,8 +220,12 @@ class Project:
         for i in xrange(len(wps['WorkPackageID'])):
             passed.append(np.random.binomial(1, wps['QualityPassRate'][i], 1)[0])
         wps['Pass'] = passed
+        wps['Day'] = day
         wps[['ProjectID', 'WorkPackageID', 'Day', 'Pass']].to_sql(name="Event_QualityCheck", con=self.engine,
                                                                   if_exists='append', index=False)
+        rework = wps[wps.Pass == 0].reset_index(drop=True)
+        rework['RemainingQty'] = rework['TotalQty']
+        self.log_wp(rework)
 
     def infer(self, day):
         wps = pd.DataFrame()
@@ -222,12 +243,12 @@ class Project:
 
 class Simulation:
     def __init__(self):
-        engine = create_engine("sqlite:///simcon")
-        runs = pd.read_sql_query("SELECT * FROM Fact_Project", engine)
+        self.engine = create_engine("sqlite:///simcon")
+        runs = pd.read_sql_query("SELECT * FROM Fact_Project", self.engine)
         self.projects = list()
         for i in xrange(len(runs['ID'])):
             self.projects.append(
-                Project(engine, runs['ID'][i], runs['MeetingCycle'][i], runs['DesignChangeCycle'][i],
+                Project(self.engine, runs['ID'][i], runs['MeetingCycle'][i], runs['DesignChangeCycle'][i],
                         runs['DesignChangeVariation'][i], runs['ProductionRateChange'][i], runs['QualityCheck'][i],
                         runs['PriorityChange'][i], runs['TaskSelectionFunction'][i]))
 
@@ -239,7 +260,16 @@ class Simulation:
             t1 = time.clock() - t0
             print "project", i, "takes", t1, "seconds"
 
+    def export(self, filename):
+        result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
+        result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
+        result[['WPName', 'Date', 'Day', 'StatusFiltered', 'Status', 'SubName', 'Floor', 'WorkProcedure', 'Retrace', 'DesignChange',
+                'Meeting', 'QualityFail', 'ProjectID', 'WorkPackageID']].to_csv(filename, sep='\t', encoding='utf-8',
+                                                                                index=False)
+        print "result exported to", filename
+
 
 if __name__ == '__main__':
     game = Simulation()
     game.run()
+    game.export("result.csv")
