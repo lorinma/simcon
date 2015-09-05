@@ -278,7 +278,7 @@ class Project:
             wps = wps.sort(
                 ['ProjectID', 'KnowledgeOwner', 'SubName', 'WorkPackageCompleteness', 'Priority', 'FloorCompleteness',
                  'SuccessorWorkContribution', 'SuccessorWork','FloorTotalWork','WorkProcedureCompleteness',
-                 'ProductionRate' 'Ran'],
+                 'ProductionRate', 'Ran'],
                 ascending=[1, 1, 1, 0, 0, 0,
                            0, 0, 1, 0,
                            0, 0])

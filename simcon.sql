@@ -12,10 +12,22 @@ CREATE TABLE IF NOT EXISTS "Fact_Project" (
 	`TaskSelectionFunction`	INTEGER NOT NULL DEFAULT 0,
 	`Done`	INTEGER NOT NULL DEFAULT 0
 );
-INSERT INTO `Fact_Project` VALUES (1,0,9,1.0,1,1,0,0,0);
--- INSERT INTO `Fact_Project` VALUES (2,0,9,1.0,1,1,0,0,0);
--- INSERT INTO `Fact_Project` VALUES (3,0,9,1.0,1,1,0,0,0);
--- INSERT INTO `Fact_Project` VALUES (4,0,9,1.0,1,1,0,0,0);
+INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
+                            DesignChangeVariation,ProductionRateChange,
+                            QualityCheck,TaskSelectionFunction)
+VALUES (0,9,1.0,1,1,0);
+INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
+                            DesignChangeVariation,ProductionRateChange,
+                            QualityCheck,TaskSelectionFunction)
+VALUES (7,9,1.0,1,1,0);
+INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
+                            DesignChangeVariation,ProductionRateChange,
+                            QualityCheck,TaskSelectionFunction)
+VALUES (0,9,1.0,1,1,1);
+INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
+                            DesignChangeVariation,ProductionRateChange,
+                            QualityCheck,TaskSelectionFunction)
+VALUES (7,9,1.0,1,1,1);
 
 DROP TABLE IF EXISTS "Log_WorkSpacePriority";
 CREATE TABLE IF NOT EXISTS "Log_WorkSpacePriority" (
