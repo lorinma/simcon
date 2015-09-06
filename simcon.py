@@ -117,7 +117,7 @@ class Project:
             self.log_production_rate(subs_status[subs_status.KnowledgeOwner != subs_status.SubName])
 
     def log_production_rate(self, data):
-        data[['ProjectID', 'KnowledgeOwner', 'WorkProcedure', 'ProductionRate', 'Day']].to_sql(
+        data[['ProjectID', 'KnowledgeOwner', 'WorkMethod', 'ProductionRate', 'Day']].to_sql(
             name="Log_ProductionRate", con=self.engine, if_exists='append', index=False)
 
     def sync_priority_space(self, subs):
@@ -277,7 +277,7 @@ class Project:
         else:
             wps = wps.sort(
                 ['ProjectID', 'KnowledgeOwner', 'SubName', 'WorkPackageCompleteness', 'Priority', 'FloorCompleteness',
-                 'SuccessorWorkContribution', 'SuccessorWork','FloorTotalWork','WorkProcedureCompleteness',
+                 'SuccessorWorkContribution', 'SuccessorWork','FloorTotalWork','WorkMethodCompleteness',
                  'ProductionRate', 'Ran'],
                 ascending=[1, 1, 1, 0, 0, 0,
                            0, 0, 1, 0,
@@ -311,12 +311,12 @@ class Simulation:
     def export(self, filename):
         result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
         result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
-        # result[['WPName', 'Date', 'Day', 'StatusFiltered', 'Status', 'SubName', 'Floor', 'WorkProcedure', 'Retrace',
+        # result[['WPName', 'Date', 'Day', 'StatusFiltered', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
         #         'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'ProjectID', 'WorkPackageID']].to_csv(
         #     filename, sep='\t', encoding='utf-8',
         #     index=False)
-        result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkProcedure', 'Retrace',
-                'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'ProjectID', 'WorkPackageID']].to_csv(
+        result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
+                'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail','Collision', 'ProductionRate', 'ProjectID', 'WorkPackageID']].to_csv(
             filename, sep='\t', encoding='utf-8',
             index=False)
 
