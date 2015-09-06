@@ -89,60 +89,60 @@ INSERT INTO `Fact_WorkMethodDependency` VALUES ('Pipes in the wall','Partition p
 INSERT INTO `Fact_WorkMethodDependency` VALUES ('Electric conduits in the wall','Partition phase 2');
 INSERT INTO `Fact_WorkMethodDependency` VALUES ('Partition phase 2','Wall tiling');
 
-DROP TABLE IF EXISTS "Fact_WorkPackage";
-CREATE TABLE IF NOT EXISTS "Fact_WorkPackage" (
-	`WorkPackageID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+DROP TABLE IF EXISTS "Fact_Task";
+CREATE TABLE IF NOT EXISTS "Fact_Task" (
+	`TaskID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	`WorkMethod`	TEXT NOT NULL,
 	`Floor`	INTEGER NOT NULL,
 	`InitialQty`	REAL NOT NULL,
 	FOREIGN KEY(`WorkMethod`) REFERENCES Fact_WorkMethod ( WorkMethod ),
 	FOREIGN KEY(`Floor`) REFERENCES Fact_WorkSpace ( Floor )
 );
-INSERT INTO `Fact_WorkPackage` VALUES (1,'Gravel base layer',1,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (2,'Gravel base layer',2,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (3,'Gravel base layer',3,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (4,'Gravel base layer',4,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (5,'Gravel base layer',5,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (6,'Pipes in the floor',1,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (7,'Pipes in the floor',2,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (8,'Pipes in the floor',3,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (9,'Pipes in the floor',4,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (10,'Pipes in the floor',5,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (11,'Electric conduits in the floor',1,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (12,'Electric conduits in the floor',2,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (13,'Electric conduits in the floor',3,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (14,'Electric conduits in the floor',4,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (15,'Electric conduits in the floor',5,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (16,'Floor tiling',1,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (17,'Floor tiling',2,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (18,'Floor tiling',3,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (19,'Floor tiling',4,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (20,'Floor tiling',5,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (21,'Partition phase 1',1,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (22,'Partition phase 1',2,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (23,'Partition phase 1',3,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (24,'Partition phase 1',4,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (25,'Partition phase 1',5,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (26,'Pipes in the wall',1,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (27,'Pipes in the wall',2,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (28,'Pipes in the wall',3,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (29,'Pipes in the wall',4,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (30,'Pipes in the wall',5,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (31,'Electric conduits in the wall',1,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (32,'Electric conduits in the wall',2,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (33,'Electric conduits in the wall',3,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (34,'Electric conduits in the wall',4,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (35,'Electric conduits in the wall',5,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (36,'Partition phase 2',1,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (37,'Partition phase 2',2,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (38,'Partition phase 2',3,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (39,'Partition phase 2',4,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (40,'Partition phase 2',5,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (41,'Wall tiling',1,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (42,'Wall tiling',2,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (43,'Wall tiling',3,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (44,'Wall tiling',4,5.0);
-INSERT INTO `Fact_WorkPackage` VALUES (45,'Wall tiling',5,5.0);
+INSERT INTO `Fact_Task` VALUES (1,'Gravel base layer',1,5.0);
+INSERT INTO `Fact_Task` VALUES (2,'Gravel base layer',2,5.0);
+INSERT INTO `Fact_Task` VALUES (3,'Gravel base layer',3,5.0);
+INSERT INTO `Fact_Task` VALUES (4,'Gravel base layer',4,5.0);
+INSERT INTO `Fact_Task` VALUES (5,'Gravel base layer',5,5.0);
+INSERT INTO `Fact_Task` VALUES (6,'Pipes in the floor',1,5.0);
+INSERT INTO `Fact_Task` VALUES (7,'Pipes in the floor',2,5.0);
+INSERT INTO `Fact_Task` VALUES (8,'Pipes in the floor',3,5.0);
+INSERT INTO `Fact_Task` VALUES (9,'Pipes in the floor',4,5.0);
+INSERT INTO `Fact_Task` VALUES (10,'Pipes in the floor',5,5.0);
+INSERT INTO `Fact_Task` VALUES (11,'Electric conduits in the floor',1,5.0);
+INSERT INTO `Fact_Task` VALUES (12,'Electric conduits in the floor',2,5.0);
+INSERT INTO `Fact_Task` VALUES (13,'Electric conduits in the floor',3,5.0);
+INSERT INTO `Fact_Task` VALUES (14,'Electric conduits in the floor',4,5.0);
+INSERT INTO `Fact_Task` VALUES (15,'Electric conduits in the floor',5,5.0);
+INSERT INTO `Fact_Task` VALUES (16,'Floor tiling',1,5.0);
+INSERT INTO `Fact_Task` VALUES (17,'Floor tiling',2,5.0);
+INSERT INTO `Fact_Task` VALUES (18,'Floor tiling',3,5.0);
+INSERT INTO `Fact_Task` VALUES (19,'Floor tiling',4,5.0);
+INSERT INTO `Fact_Task` VALUES (20,'Floor tiling',5,5.0);
+INSERT INTO `Fact_Task` VALUES (21,'Partition phase 1',1,5.0);
+INSERT INTO `Fact_Task` VALUES (22,'Partition phase 1',2,5.0);
+INSERT INTO `Fact_Task` VALUES (23,'Partition phase 1',3,5.0);
+INSERT INTO `Fact_Task` VALUES (24,'Partition phase 1',4,5.0);
+INSERT INTO `Fact_Task` VALUES (25,'Partition phase 1',5,5.0);
+INSERT INTO `Fact_Task` VALUES (26,'Pipes in the wall',1,5.0);
+INSERT INTO `Fact_Task` VALUES (27,'Pipes in the wall',2,5.0);
+INSERT INTO `Fact_Task` VALUES (28,'Pipes in the wall',3,5.0);
+INSERT INTO `Fact_Task` VALUES (29,'Pipes in the wall',4,5.0);
+INSERT INTO `Fact_Task` VALUES (30,'Pipes in the wall',5,5.0);
+INSERT INTO `Fact_Task` VALUES (31,'Electric conduits in the wall',1,5.0);
+INSERT INTO `Fact_Task` VALUES (32,'Electric conduits in the wall',2,5.0);
+INSERT INTO `Fact_Task` VALUES (33,'Electric conduits in the wall',3,5.0);
+INSERT INTO `Fact_Task` VALUES (34,'Electric conduits in the wall',4,5.0);
+INSERT INTO `Fact_Task` VALUES (35,'Electric conduits in the wall',5,5.0);
+INSERT INTO `Fact_Task` VALUES (36,'Partition phase 2',1,5.0);
+INSERT INTO `Fact_Task` VALUES (37,'Partition phase 2',2,5.0);
+INSERT INTO `Fact_Task` VALUES (38,'Partition phase 2',3,5.0);
+INSERT INTO `Fact_Task` VALUES (39,'Partition phase 2',4,5.0);
+INSERT INTO `Fact_Task` VALUES (40,'Partition phase 2',5,5.0);
+INSERT INTO `Fact_Task` VALUES (41,'Wall tiling',1,5.0);
+INSERT INTO `Fact_Task` VALUES (42,'Wall tiling',2,5.0);
+INSERT INTO `Fact_Task` VALUES (43,'Wall tiling',3,5.0);
+INSERT INTO `Fact_Task` VALUES (44,'Wall tiling',4,5.0);
+INSERT INTO `Fact_Task` VALUES (45,'Wall tiling',5,5.0);
 
 DROP TABLE IF EXISTS "Log_WorkSpacePriority";
 CREATE TABLE IF NOT EXISTS "Log_WorkSpacePriority" (
@@ -159,17 +159,17 @@ CREATE TABLE IF NOT EXISTS "Log_WorkSpacePriority" (
 	FOREIGN KEY(`SubName`) REFERENCES Fact_Sub ( SubName )
 );
 
-DROP TABLE IF EXISTS "Log_WorkPackage";
-CREATE TABLE IF NOT EXISTS "Log_WorkPackage" (
+DROP TABLE IF EXISTS "Log_Task";
+CREATE TABLE IF NOT EXISTS "Log_Task" (
 	`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	`KnowledgeOwner`	TEXT NOT NULL,
 	`Day`	INTEGER NOT NULL DEFAULT 0,
-	`WorkPackageID`	INTEGER NOT NULL,
+	`TaskID`	INTEGER NOT NULL,
 	`RemainingQty`	REAL NOT NULL,
 	`TotalQty`	REAL NOT NULL,
 	`ProjectID`	INTEGER NOT NULL,
 	FOREIGN KEY(`KnowledgeOwner`) REFERENCES Fact_Sub ( SubName ),
-	FOREIGN KEY(`WorkPackageID`) REFERENCES Fact_WorkPackage ( WorkPackageID ),
+	FOREIGN KEY(`TaskID`) REFERENCES Fact_Task ( TaskID ),
 	FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID )
 );
 
@@ -189,21 +189,21 @@ CREATE TABLE IF NOT EXISTS "Log_ProductionRate" (
 DROP TABLE IF EXISTS "Event_Retrace";
 CREATE TABLE IF NOT EXISTS "Event_Retrace" (
 	`Day`	INTEGER NOT NULL,
-	`WorkPackageID`	INTEGER NOT NULL,
+	`TaskID`	INTEGER NOT NULL,
 	`ProjectID`	INTEGER NOT NULL,
 	`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	FOREIGN KEY(`WorkPackageID`) REFERENCES Fact_WorkPackage ( WorkPackageID ),
+	FOREIGN KEY(`TaskID`) REFERENCES Fact_Task ( TaskID ),
 	FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID )
 );
 
 DROP TABLE IF EXISTS "Event_QualityCheck";
 CREATE TABLE IF NOT EXISTS "Event_QualityCheck" (
 	`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`WorkPackageID`	INTEGER NOT NULL,
+	`TaskID`	INTEGER NOT NULL,
 	`Pass`	INTEGER NOT NULL DEFAULT 1,
 	`ProjectID`	INTEGER NOT NULL,
 	`Day`	INTEGER NOT NULL,
-	FOREIGN KEY(`WorkPackageID`) REFERENCES Fact_WorkPackage ( WorkPackageID ),
+	FOREIGN KEY(`TaskID`) REFERENCES Fact_Task ( TaskID ),
 	FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID )
 );
 
@@ -218,21 +218,21 @@ CREATE TABLE IF NOT EXISTS "Event_Meeting" (
 DROP TABLE IF EXISTS "Event_DesignChange";
 CREATE TABLE IF NOT EXISTS "Event_DesignChange" (
 	`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`WorkPackageID`	INTEGER NOT NULL,
+	`TaskID`	INTEGER NOT NULL,
 	`TotalQty`	REAL NOT NULL DEFAULT 0,
 	`Day`	INTEGER NOT NULL DEFAULT 0,
 	`ProjectID`	INTEGER NOT NULL,
-	FOREIGN KEY(`WorkPackageID`) REFERENCES Fact_WorkPackage ( WorkPackageID ),
+	FOREIGN KEY(`TaskID`) REFERENCES Fact_Task ( TaskID ),
 	FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID )
 );
 
 DROP TABLE IF EXISTS "Event_WorkBegin";
 CREATE TABLE IF NOT EXISTS "Event_WorkBegin" (
 	`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`WorkPackageID`	INTEGER NOT NULL,
+	`TaskID`	INTEGER NOT NULL,
 	`Day`	INTEGER NOT NULL DEFAULT 0,
 	`ProjectID`	INTEGER NOT NULL,
-	FOREIGN KEY(`WorkPackageID`) REFERENCES Fact_WorkPackage ( WorkPackageID ),
+	FOREIGN KEY(`TaskID`) REFERENCES Fact_Task ( TaskID ),
 	FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID )
 );
 
@@ -244,14 +244,14 @@ delete from Event_Retrace where ProjectID in (select ID from Fact_Project where 
 delete from Event_WorkBegin where ProjectID in (select ID from Fact_Project where Done=0);
 
 delete from Log_ProductionRate where ProjectID in (select ID from Fact_Project where Done=0);
-delete from Log_WorkPackage where ProjectID in (select ID from Fact_Project where Done=0);
+delete from Log_Task where ProjectID in (select ID from Fact_Project where Done=0);
 delete from Log_WorkSpacePriority where ProjectID in (select ID from Fact_Project where Done=0);
 
 insert into Log_ProductionRate (KnowledgeOwner,ProductionRate,WorkMethod, ProjectID)
 select A.SubName KnowledgeOwner, InitialProductionRate ProductionRate, WorkMethod, C.ID ProjectID from Fact_Sub A join Fact_WorkMethod B join Fact_Project C where C.Done=0;
 
-insert into Log_WorkPackage (KnowledgeOwner,WorkPackageID,RemainingQty, TotalQty, ProjectID)
-select B.SubName KnowledgeOwner, WorkPackageID, InitialQty RemainingQty, InitialQty TotalQty, C.ID ProjectID from Fact_WorkPackage A join Fact_Sub B join Fact_Project C where C.Done=0;
+insert into Log_Task (KnowledgeOwner,TaskID,RemainingQty, TotalQty, ProjectID)
+select B.SubName KnowledgeOwner, TaskID, InitialQty RemainingQty, InitialQty TotalQty, C.ID ProjectID from Fact_Task A join Fact_Sub B join Fact_Project C where C.Done=0;
 
 insert into Log_WorkSpacePriority (KnowledgeOwner,Floor,Priority,SubName,ProjectID)
 select A.SubName KnowledgeOwner, B.Floor, B.InitialPriority Priority, C.SubName SubName, D.ID ProjectID from Fact_Sub A join Fact_WorkSpace B join Fact_Sub C join Fact_Project D where D.Done=0;
@@ -263,30 +263,30 @@ select A.SubName KnowledgeOwner, B.Floor, B.InitialPriority Priority, C.SubName 
 
 ------------------------------------------------------------------------------------------------------------------------------
 
-DROP VIEW IF EXISTS Fact_WorkPackageDetail;
-CREATE VIEW IF NOT EXISTS Fact_WorkPackageDetail as
-  SELECT WorkPackageID,Floor,Fact_WorkMethod.*
-  FROM Fact_WorkPackage
+DROP VIEW IF EXISTS Fact_TaskDetail;
+CREATE VIEW IF NOT EXISTS Fact_TaskDetail as
+  SELECT TaskID,Floor,Fact_WorkMethod.*
+  FROM Fact_Task
   LEFT JOIN Fact_WorkMethod
-  ON Fact_WorkMethod.WorkMethod = Fact_WorkPackage.WorkMethod;
+  ON Fact_WorkMethod.WorkMethod = Fact_Task.WorkMethod;
 
-DROP VIEW IF EXISTS True_WorkPackageLatest;
-CREATE VIEW IF NOT EXISTS True_WorkPackageLatest as
+DROP VIEW IF EXISTS True_TaskLatest;
+CREATE VIEW IF NOT EXISTS True_TaskLatest as
 SELECT Latest.*,Floor
 FROM (
-  SELECT KnowledgeOwner,Day,WorkPackageID,RemainingQty,TotalQty,ProjectID,SubName
+  SELECT KnowledgeOwner,Day,TaskID,RemainingQty,TotalQty,ProjectID,SubName
   FROM (
-    SELECT Log_WorkPackage.*,WorkMethod,SubName
-    FROM Log_WorkPackage
-      LEFT JOIN Fact_WorkPackageDetail
-        ON Log_WorkPackage.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+    SELECT Log_Task.*,WorkMethod,SubName
+    FROM Log_Task
+      LEFT JOIN Fact_TaskDetail
+        ON Log_Task.TaskID=Fact_TaskDetail.TaskID
     WHERE KnowledgeOwner=SubName
-    ORDER BY ProjectID,KnowledgeOwner,WorkPackageID,ID
+    ORDER BY ProjectID,KnowledgeOwner,TaskID,ID
   )
-  GROUP BY ProjectID,KnowledgeOwner,WorkPackageID
+  GROUP BY ProjectID,KnowledgeOwner,TaskID
 )Latest
-LEFT JOIN Fact_WorkPackage
-ON Latest.WorkPackageID=Fact_WorkPackage.WorkPackageID;
+LEFT JOIN Fact_Task
+ON Latest.TaskID=Fact_Task.TaskID;
 
 DROP VIEW IF EXISTS True_ProductionRateLatest;
 CREATE VIEW IF NOT EXISTS True_ProductionRateLatest as
@@ -312,65 +312,79 @@ FROM (
 )
 GROUP BY ProjectID,KnowledgeOwner,Floor;
 
-DROP VIEW IF EXISTS Fact_WorkPackageDependency;
-CREATE VIEW IF NOT EXISTS Fact_WorkPackageDependency as
-SELECT PredecessorWorkPackageID,Fact_WorkPackage.WorkPackageID SuccessorWorkPackageID
+DROP VIEW IF EXISTS Fact_TaskDependency;
+CREATE VIEW IF NOT EXISTS Fact_TaskDependency as
+SELECT PredecessorTaskID,Fact_Task.TaskID SuccessorTaskID
 FROM (
-  SELECT Fact_WorkPackage.WorkPackageID PredecessorWorkPackageID,Floor,SuccessorWorkMethod
-  FROM Fact_WorkPackage
+  SELECT Fact_Task.TaskID PredecessorTaskID,Floor,SuccessorWorkMethod
+  FROM Fact_Task
     INNER JOIN Fact_WorkMethodDependency
-  ON Fact_WorkPackage.WorkMethod=Fact_WorkMethodDependency.PredecessorWorkMethod
-) PredecessorWorkPackage
-INNER JOIN Fact_WorkPackage
-ON PredecessorWorkPackage.Floor=Fact_WorkPackage.Floor AND PredecessorWorkPackage.SuccessorWorkMethod=Fact_WorkPackage.WorkMethod
-ORDER BY PredecessorWorkPackageID,SuccessorWorkPackageID;
+  ON Fact_Task.WorkMethod=Fact_WorkMethodDependency.PredecessorWorkMethod
+) PredecessorTask
+INNER JOIN Fact_Task
+ON PredecessorTask.Floor=Fact_Task.Floor AND PredecessorTask.SuccessorWorkMethod=Fact_Task.WorkMethod
+ORDER BY PredecessorTaskID,SuccessorTaskID;
 
-DROP VIEW IF EXISTS View_WorkPackageLatest;
-CREATE VIEW IF NOT EXISTS View_WorkPackageLatest as
+DROP VIEW IF EXISTS View_TaskLatest;
+CREATE VIEW IF NOT EXISTS View_TaskLatest as
 SELECT *
 FROM (
   SELECT *
-  FROM Log_WorkPackage
-  ORDER BY ProjectID,KnowledgeOwner,WorkPackageID,ID
+  FROM Log_Task
+  ORDER BY ProjectID,KnowledgeOwner,TaskID,ID
 )
-GROUP BY ProjectID,KnowledgeOwner,WorkPackageID;
+GROUP BY ProjectID,KnowledgeOwner,TaskID;
 
-DROP VIEW IF EXISTS View_WorkPackageBacklog;
-CREATE VIEW IF NOT EXISTS View_WorkPackageBacklog as
-SELECT BacklogDetail.*,1-RemainingQty/TotalQty WorkPackageCompleteness, Priority,ProductionRate, random()%1000 Ran
+DROP VIEW IF EXISTS View_TaskBacklog;
+CREATE VIEW IF NOT EXISTS View_TaskBacklog as
+SELECT BacklogDetail.*,1-RemainingQty/TotalQty TaskCompleteness, Priority,ProductionRate, random()%1000 Ran
 FROM (
        SELECT Backlog.*,SubName,Floor,WorkMethod
        FROM (
-              SELECT Unfinished.ProjectID ProjectID, Unfinished.KnowledgeOwner KnowledgeOwner,Unfinished.Day Day,Unfinished.WorkPackageID WorkPackageID,Unfinished.RemainingQty RemainingQty,Unfinished.TotalQty TotalQty
+              SELECT Unfinished.ProjectID ProjectID, Unfinished.KnowledgeOwner KnowledgeOwner,Unfinished.Day Day,Unfinished.TaskID TaskID,Unfinished.RemainingQty RemainingQty,Unfinished.TotalQty TotalQty
               FROM (
-                SELECT *
-                FROM View_WorkPackageLatest
-                WHERE RemainingQty>0
-                ) Unfinished
-                LEFT JOIN Fact_WorkPackageDependency
-                  ON Unfinished.WorkPackageID=Fact_WorkPackageDependency.SuccessorWorkPackageID
-              WHERE PredecessorWorkPackageID ISNULL
+                     SELECT View_TaskLatest.*
+                     FROM View_TaskLatest
+                       INNER JOIN (
+                                    SELECT DISTINCT KnowledgeOwner,ProjectID
+                                    FROM True_TaskLatest
+                                    WHERE RemainingQty>0
+                                  )UnfinishedSub
+                         ON View_TaskLatest.ProjectID=UnfinishedSub.ProjectID AND
+                            View_TaskLatest.KnowledgeOwner=UnfinishedSub.KnowledgeOwner
+                     WHERE RemainingQty>0
+                   ) Unfinished
+                LEFT JOIN Fact_TaskDependency
+                  ON Unfinished.TaskID=Fact_TaskDependency.SuccessorTaskID
+              WHERE PredecessorTaskID ISNULL
               UNION
-              SELECT ProjectID,KnowledgeOwner,Day,WorkPackageID,RemainingQty,TotalQty
+              SELECT ProjectID,KnowledgeOwner,Day,TaskID,RemainingQty,TotalQty
               FROM (
-                SELECT SuccessorWorkPackage.ProjectID ProjectID,SuccessorWorkPackage.KnowledgeOwner KnowledgeOwner,SuccessorWorkPackage.Day Day,SuccessorWorkPackage.WorkPackageID WorkPackageID,SuccessorWorkPackage.RemainingQty RemainingQty,SuccessorWorkPackage.TotalQty TotalQty, sum(View_WorkPackageLatest.RemainingQty) PredecessorWork
+                SELECT SuccessorTask.ProjectID ProjectID,SuccessorTask.KnowledgeOwner KnowledgeOwner,SuccessorTask.Day Day,SuccessorTask.TaskID TaskID,SuccessorTask.RemainingQty RemainingQty,SuccessorTask.TotalQty TotalQty, sum(View_TaskLatest.RemainingQty) PredecessorWork
                 FROM (
-                       SELECT View_WorkPackageLatest.*,PredecessorWorkPackageID
-                       FROM View_WorkPackageLatest
-                         INNER JOIN Fact_WorkPackageDependency
-                           ON View_WorkPackageLatest.WorkPackageID=Fact_WorkPackageDependency.SuccessorWorkPackageID
+                       SELECT View_TaskLatest.*,PredecessorTaskID
+                       FROM View_TaskLatest
+                         INNER JOIN Fact_TaskDependency
+                           ON View_TaskLatest.TaskID=Fact_TaskDependency.SuccessorTaskID
+                         INNER JOIN (
+                                      SELECT DISTINCT KnowledgeOwner,ProjectID
+                                      FROM True_TaskLatest
+                                      WHERE RemainingQty>0
+                                    )UnfinishedSub
+                           ON View_TaskLatest.ProjectID=UnfinishedSub.ProjectID AND
+                              View_TaskLatest.KnowledgeOwner=UnfinishedSub.KnowledgeOwner
                        WHERE RemainingQty>0
-                     ) SuccessorWorkPackage
-                  INNER JOIN View_WorkPackageLatest
-                    ON SuccessorWorkPackage.PredecessorWorkPackageID=View_WorkPackageLatest.WorkPackageID AND
-                       SuccessorWorkPackage.KnowledgeOwner=View_WorkPackageLatest.KnowledgeOwner AND
-                       SuccessorWorkPackage.ProjectID=View_WorkPackageLatest.ProjectID
-                GROUP BY SuccessorWorkPackage.ProjectID,SuccessorWorkPackage.KnowledgeOwner,SuccessorWorkPackage.WorkPackageID
+                     ) SuccessorTask
+                  INNER JOIN View_TaskLatest
+                    ON SuccessorTask.PredecessorTaskID=View_TaskLatest.TaskID AND
+                       SuccessorTask.KnowledgeOwner=View_TaskLatest.KnowledgeOwner AND
+                       SuccessorTask.ProjectID=View_TaskLatest.ProjectID
+                GROUP BY SuccessorTask.ProjectID,SuccessorTask.KnowledgeOwner,SuccessorTask.TaskID
               )
               WHERE PredecessorWork=0
             ) Backlog
-         LEFT JOIN Fact_WorkPackageDetail
-           ON Backlog.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+         LEFT JOIN Fact_TaskDetail
+           ON Backlog.TaskID=Fact_TaskDetail.TaskID
      ) BacklogDetail
   LEFT JOIN (
               SELECT KnowledgeOwner,Day,Floor,Priority,ProjectID,SubName
@@ -393,129 +407,129 @@ FROM (
     ON BacklogDetail.ProjectID=Productivity.ProjectID AND
        BacklogDetail.WorkMethod=Productivity.WorkMethod AND
        BacklogDetail.KnowledgeOwner=Productivity.KnowledgeOwner
-ORDER BY ProjectID,KnowledgeOwner,SubName, WorkPackageCompleteness, Priority, Ran;
+ORDER BY ProjectID,KnowledgeOwner,SubName, TaskCompleteness, Priority, Ran;
 
-DROP VIEW IF EXISTS View_WorkPackageBacklogPriority;
-CREATE VIEW IF NOT EXISTS View_WorkPackageBacklogPriority as
-SELECT View_WorkPackageBacklogDetail.*, PerformanceStd, FloorCompleteness,WorkMethodCompleteness,SuccessorWork, FloorTotalWork,RemainingQty/FloorTotalWork SignificanceToFloor, SuccessorWork/FloorTotalWork SuccessorWorkContribution
-FROM View_WorkPackageBacklog View_WorkPackageBacklogDetail
-    LEFT JOIN Fact_WorkPackageDetail
-      ON View_WorkPackageBacklogDetail.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+DROP VIEW IF EXISTS View_TaskBacklogPriority;
+CREATE VIEW IF NOT EXISTS View_TaskBacklogPriority as
+SELECT View_TaskBacklogDetail.*, PerformanceStd, FloorCompleteness,WorkMethodCompleteness,SuccessorWork, FloorTotalWork,RemainingQty/FloorTotalWork SignificanceToFloor, SuccessorWork/FloorTotalWork SuccessorWorkContribution
+FROM View_TaskBacklog View_TaskBacklogDetail
+    LEFT JOIN Fact_TaskDetail
+      ON View_TaskBacklogDetail.TaskID=Fact_TaskDetail.TaskID
     LEFT JOIN (
                 SELECT ProjectID,KnowledgeOwner,Floor,1-sum(RemainingQty)/sum(TotalQty) FloorCompleteness, sum(TotalQty) FloorTotalWork
-                FROM View_WorkPackageLatest
-                  LEFT JOIN Fact_WorkPackageDetail
-                    ON View_WorkPackageLatest.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+                FROM View_TaskLatest
+                  LEFT JOIN Fact_TaskDetail
+                    ON View_TaskLatest.TaskID=Fact_TaskDetail.TaskID
                 GROUP BY ProjectID,KnowledgeOwner,Floor
               ) FloorCompleteness
-      ON FloorCompleteness.ProjectID=View_WorkPackageBacklogDetail.ProjectID AND
-         FloorCompleteness.KnowledgeOwner=View_WorkPackageBacklogDetail.KnowledgeOwner AND
-         FloorCompleteness.Floor=View_WorkPackageBacklogDetail.Floor
+      ON FloorCompleteness.ProjectID=View_TaskBacklogDetail.ProjectID AND
+         FloorCompleteness.KnowledgeOwner=View_TaskBacklogDetail.KnowledgeOwner AND
+         FloorCompleteness.Floor=View_TaskBacklogDetail.Floor
     LEFT JOIN (
                 SELECT ProjectID,KnowledgeOwner,WorkMethod,1-sum(RemainingQty)/sum(TotalQty) WorkMethodCompleteness
-                FROM View_WorkPackageLatest
-                  LEFT JOIN Fact_WorkPackageDetail
-                    ON View_WorkPackageLatest.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+                FROM View_TaskLatest
+                  LEFT JOIN Fact_TaskDetail
+                    ON View_TaskLatest.TaskID=Fact_TaskDetail.TaskID
                 GROUP BY ProjectID,KnowledgeOwner,WorkMethod
               ) WorkMethodCompletenes
-      ON WorkMethodCompletenes.ProjectID=View_WorkPackageBacklogDetail.ProjectID AND
-         WorkMethodCompletenes.KnowledgeOwner=View_WorkPackageBacklogDetail.KnowledgeOwner AND
-         WorkMethodCompletenes.WorkMethod=Fact_WorkPackageDetail.WorkMethod
+      ON WorkMethodCompletenes.ProjectID=View_TaskBacklogDetail.ProjectID AND
+         WorkMethodCompletenes.KnowledgeOwner=View_TaskBacklogDetail.KnowledgeOwner AND
+         WorkMethodCompletenes.WorkMethod=Fact_TaskDetail.WorkMethod
     LEFT JOIN (
-                SELECT Predecessor.ProjectID ProjectID,Predecessor.KnowledgeOwner KnowledgeOwner,Predecessor.WorkPackageID WorkPackageID,sum(RemainingQty) SuccessorWork
+                SELECT Predecessor.ProjectID ProjectID,Predecessor.KnowledgeOwner KnowledgeOwner,Predecessor.TaskID TaskID,sum(RemainingQty) SuccessorWork
                 FROM (
-                       SELECT ProjectID,KnowledgeOwner,WorkPackageID,SuccessorWorkPackageID
-                       FROM View_WorkPackageBacklog
-                         INNER JOIN Fact_WorkPackageDependency
-                           ON View_WorkPackageBacklog.WorkPackageID=Fact_WorkPackageDependency.PredecessorWorkPackageID
+                       SELECT ProjectID,KnowledgeOwner,TaskID,SuccessorTaskID
+                       FROM View_TaskBacklog
+                         INNER JOIN Fact_TaskDependency
+                           ON View_TaskBacklog.TaskID=Fact_TaskDependency.PredecessorTaskID
                      )Predecessor
                   INNER JOIN (
                                SELECT *
-                               FROM Log_WorkPackage
-                               GROUP BY ProjectID,KnowledgeOwner,WorkPackageID
-                             )WorkPackageLatest
-                    ON Predecessor.SuccessorWorkPackageID=WorkPackageLatest.WorkPackageID AND
-                       Predecessor.ProjectID=WorkPackageLatest.ProjectID AND
-                       Predecessor.KnowledgeOwner=WorkPackageLatest.KnowledgeOwner
-                GROUP BY Predecessor.ProjectID,Predecessor.KnowledgeOwner,Predecessor.WorkPackageID
+                               FROM Log_Task
+                               GROUP BY ProjectID,KnowledgeOwner,TaskID
+                             )TaskLatest
+                    ON Predecessor.SuccessorTaskID=TaskLatest.TaskID AND
+                       Predecessor.ProjectID=TaskLatest.ProjectID AND
+                       Predecessor.KnowledgeOwner=TaskLatest.KnowledgeOwner
+                GROUP BY Predecessor.ProjectID,Predecessor.KnowledgeOwner,Predecessor.TaskID
               )SuccessorWork
-      ON SuccessorWork.ProjectID=View_WorkPackageBacklogDetail.ProjectID AND
-         SuccessorWork.KnowledgeOwner=View_WorkPackageBacklogDetail.KnowledgeOwner AND
-         SuccessorWork.WorkPackageID=View_WorkPackageBacklogDetail.WorkPackageID
-  ORDER BY ProjectID,KnowledgeOwner,SubName,WorkPackageCompleteness,Priority,FloorCompleteness,SuccessorWorkContribution,SuccessorWork,FloorTotalWork DESC ,WorkMethodCompleteness,ProductionRate,Ran;
+      ON SuccessorWork.ProjectID=View_TaskBacklogDetail.ProjectID AND
+         SuccessorWork.KnowledgeOwner=View_TaskBacklogDetail.KnowledgeOwner AND
+         SuccessorWork.TaskID=View_TaskBacklogDetail.TaskID
+  ORDER BY ProjectID,KnowledgeOwner,SubName,TaskCompleteness,Priority,FloorCompleteness,SuccessorWorkContribution,SuccessorWork,FloorTotalWork DESC ,WorkMethodCompleteness,ProductionRate,Ran;
 
-Drop VIEW IF EXISTS View_WorkPackageSelectedRandom;
-CREATE VIEW IF NOT EXISTS View_WorkPackageSelectedRandom AS
-SELECT Backlog.KnowledgeOwner,Backlog.ProjectID,Backlog.SubName,Backlog.WorkPackageID,Fact_WorkPackageDetail.Floor,Fact_WorkPackageDetail.WorkMethod,Backlog.RemainingQty,Backlog.TotalQty,ProductionRate,PerformanceStd
+Drop VIEW IF EXISTS View_TaskSelectedRandom;
+CREATE VIEW IF NOT EXISTS View_TaskSelectedRandom AS
+SELECT Backlog.KnowledgeOwner,Backlog.ProjectID,Backlog.SubName,Backlog.TaskID,Fact_TaskDetail.Floor,Fact_TaskDetail.WorkMethod,Backlog.RemainingQty,Backlog.TotalQty,ProductionRate,PerformanceStd
 FROM (
   SELECT *
-  FROM View_WorkPackageBacklog
+  FROM View_TaskBacklog
   WHERE KnowledgeOwner=SubName
   GROUP BY ProjectID,KnowledgeOwner,SubName
 )Backlog
-LEFT JOIN Fact_WorkPackageDetail
-ON Backlog.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID;
+LEFT JOIN Fact_TaskDetail
+ON Backlog.TaskID=Fact_TaskDetail.TaskID;
 
-DROP VIEW IF EXISTS View_WorkPackageSelected;
-CREATE VIEW IF NOT EXISTS View_WorkPackageSelected as
+DROP VIEW IF EXISTS View_TaskSelected;
+CREATE VIEW IF NOT EXISTS View_TaskSelected as
 SELECT *
-FROM View_WorkPackageBacklogPriority
-WHERE View_WorkPackageBacklogPriority.KnowledgeOwner=View_WorkPackageBacklogPriority.SubName
-GROUP BY View_WorkPackageBacklogPriority.ProjectID,View_WorkPackageBacklogPriority.KnowledgeOwner,View_WorkPackageBacklogPriority.SubName;
+FROM View_TaskBacklogPriority
+WHERE View_TaskBacklogPriority.KnowledgeOwner=View_TaskBacklogPriority.SubName
+GROUP BY View_TaskBacklogPriority.ProjectID,View_TaskBacklogPriority.KnowledgeOwner,View_TaskBacklogPriority.SubName;
 
-DROP VIEW IF EXISTS True_WorkPackageBacklog;
-CREATE VIEW IF NOT EXISTS True_WorkPackageBacklog as
+DROP VIEW IF EXISTS True_TaskBacklog;
+CREATE VIEW IF NOT EXISTS True_TaskBacklog as
 SELECT *
 FROM (
-  SELECT Unfinished.ProjectID ProjectID,Unfinished.WorkPackageID WorkPackageID
+  SELECT Unfinished.ProjectID ProjectID,Unfinished.TaskID TaskID
   FROM(
         SELECT *
-        FROM True_WorkPackageLatest
+        FROM True_TaskLatest
         WHERE RemainingQty>0
       ) Unfinished
-    LEFT JOIN Fact_WorkPackageDependency
-      ON Unfinished.WorkPackageID=Fact_WorkPackageDependency.SuccessorWorkPackageID
-  WHERE PredecessorWorkPackageID ISNULL
+    LEFT JOIN Fact_TaskDependency
+      ON Unfinished.TaskID=Fact_TaskDependency.SuccessorTaskID
+  WHERE PredecessorTaskID ISNULL
   UNION
-  SELECT ProjectID,WorkPackageID
+  SELECT ProjectID,TaskID
   FROM (
-    SELECT SuccessorWorkPackage.ProjectID,SuccessorWorkPackage.WorkPackageID,sum(True_WorkPackageLatest.RemainingQty) TotalPredecessorWork
+    SELECT SuccessorTask.ProjectID,SuccessorTask.TaskID,sum(True_TaskLatest.RemainingQty) TotalPredecessorWork
     FROM (
-           SELECT True_WorkPackageLatest.*,PredecessorWorkPackageID
-           FROM True_WorkPackageLatest
-             INNER JOIN Fact_WorkPackageDependency
-               ON True_WorkPackageLatest.WorkPackageID=Fact_WorkPackageDependency.SuccessorWorkPackageID
+           SELECT True_TaskLatest.*,PredecessorTaskID
+           FROM True_TaskLatest
+             INNER JOIN Fact_TaskDependency
+               ON True_TaskLatest.TaskID=Fact_TaskDependency.SuccessorTaskID
            WHERE RemainingQty>0
-         ) SuccessorWorkPackage
-      INNER JOIN True_WorkPackageLatest
-        ON SuccessorWorkPackage.PredecessorWorkPackageID=True_WorkPackageLatest.WorkPackageID AND
-          SuccessorWorkPackage.ProjectID=True_WorkPackageLatest.ProjectID
-    GROUP BY SuccessorWorkPackage.ProjectID, SuccessorWorkPackage.WorkPackageID
+         ) SuccessorTask
+      INNER JOIN True_TaskLatest
+        ON SuccessorTask.PredecessorTaskID=True_TaskLatest.TaskID AND
+          SuccessorTask.ProjectID=True_TaskLatest.ProjectID
+    GROUP BY SuccessorTask.ProjectID, SuccessorTask.TaskID
   )
   WHERE TotalPredecessorWork=0
 );
 
-DROP VIEW IF EXISTS True_WorkPackageTrace;
-CREATE VIEW IF NOT EXISTS True_WorkPackageTrace as
-SELECT Log_WorkPackage.*,KnowledgeOwner SubName,Floor,WorkMethod
-FROM Log_WorkPackage
-LEFT JOIN Fact_WorkPackageDetail
-  ON Log_WorkPackage.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+DROP VIEW IF EXISTS True_TaskTrace;
+CREATE VIEW IF NOT EXISTS True_TaskTrace as
+SELECT Log_Task.*,KnowledgeOwner SubName,Floor,WorkMethod
+FROM Log_Task
+LEFT JOIN Fact_TaskDetail
+  ON Log_Task.TaskID=Fact_TaskDetail.TaskID
 WHERE KnowledgeOwner=SubName
-GROUP BY Day,Log_WorkPackage.WorkPackageID, ProjectID;
+GROUP BY Day,Log_Task.TaskID, ProjectID;
 
 DROP VIEW IF EXISTS True_SubAppearance;
 CREATE VIEW IF NOT EXISTS True_SubAppearance as
 SELECT *
 FROM (
-  SELECT SubName,Day,Floor,WorkPackageID, ProjectID,0 Retrace
-  FROM True_WorkPackageTrace
+  SELECT SubName,Day,Floor,TaskID, ProjectID,0 Retrace
+  FROM True_TaskTrace
   WHERE Day>0
   UNION
-  SELECT SubName,Day,Floor,Event_Retrace.WorkPackageID WorkPackageID, ProjectID,1 Retrace
+  SELECT SubName,Day,Floor,Event_Retrace.TaskID TaskID, ProjectID,1 Retrace
   FROM Event_Retrace
-    LEFT JOIN Fact_WorkPackageDetail
-    ON Event_Retrace.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+    LEFT JOIN Fact_TaskDetail
+    ON Event_Retrace.TaskID=Fact_TaskDetail.TaskID
 ) GROUP BY SubName,Day, ProjectID;
 
 DROP VIEW IF EXISTS True_SubCollision;
@@ -539,106 +553,106 @@ DROP VIEW IF EXISTS True_ProjectCompleteness;
 CREATE VIEW IF NOT EXISTS True_ProjectCompleteness as
 SELECT ProjectID, sum(RemainingQty) TRQty, sum(TotalQty) TQty,
   1-sum(RemainingQty)/sum(TotalQty) TotalCompleteness
-FROM True_WorkPackageLatest
+FROM True_TaskLatest
 GROUP BY ProjectID;
 
-DROP VIEW IF EXISTS True_WorkPackageQualityUncheck;
-CREATE VIEW IF NOT EXISTS True_WorkPackageQualityUncheck as
-SELECT Fact_WorkPackage.WorkPackageID,ID ProjectID
-FROM Fact_WorkPackage JOIN Fact_Project
+DROP VIEW IF EXISTS True_TaskQualityUncheck;
+CREATE VIEW IF NOT EXISTS True_TaskQualityUncheck as
+SELECT Fact_Task.TaskID,ID ProjectID
+FROM Fact_Task JOIN Fact_Project
 LEFT JOIN (
-    SELECT ProjectID,WorkPackageID
+    SELECT ProjectID,TaskID
     FROM (
-      SELECT ProjectID,WorkPackageID,Pass
+      SELECT ProjectID,TaskID,Pass
       FROM Event_QualityCheck
-      GROUP BY ProjectID,WorkPackageID
+      GROUP BY ProjectID,TaskID
     )
     WHERE Pass>0
     )Passed
-ON Fact_WorkPackage.WorkPackageID=Passed.WorkPackageID AND
+ON Fact_Task.TaskID=Passed.TaskID AND
       Fact_Project.ID=Passed.ProjectID
-WHERE Passed.WorkPackageID ISNULL;
+WHERE Passed.TaskID ISNULL;
 
 DROP VIEW IF EXISTS True_DesignChangeRandom;
 CREATE VIEW IF NOT EXISTS True_DesignChangeRandom as
 SELECT *
 FROM (
-  SELECT True_WorkPackageLatest.KnowledgeOwner,True_WorkPackageLatest.Day Day,True_WorkPackageLatest.RemainingQty, True_WorkPackageLatest.ProjectID ProjectID,True_WorkPackageLatest.WorkPackageID WorkPackageID,TotalQty,random()%1000 Ran
-  FROM True_WorkPackageQualityUncheck
-    LEFT JOIN True_WorkPackageLatest
-      ON True_WorkPackageQualityUncheck.ProjectID=True_WorkPackageLatest.ProjectID AND
-         True_WorkPackageQualityUncheck.WorkPackageID=True_WorkPackageLatest.WorkPackageID
+  SELECT True_TaskLatest.KnowledgeOwner,True_TaskLatest.Day Day,True_TaskLatest.RemainingQty, True_TaskLatest.ProjectID ProjectID,True_TaskLatest.TaskID TaskID,TotalQty,random()%1000 Ran
+  FROM True_TaskQualityUncheck
+    LEFT JOIN True_TaskLatest
+      ON True_TaskQualityUncheck.ProjectID=True_TaskLatest.ProjectID AND
+         True_TaskQualityUncheck.TaskID=True_TaskLatest.TaskID
   ORDER BY ProjectID,Ran
 )GROUP BY ProjectID;
 
-DROP VIEW IF EXISTS True_WorkPackageFinishedQualityUncheck;
-CREATE VIEW IF NOT EXISTS True_WorkPackageFinishedQualityUncheck AS
-SELECT True_WorkPackageLatest.*,1-(1-QualityRate)*(1-WorkMethodCompleteness) QualityPassRate
-FROM True_WorkPackageQualityUncheck
-LEFT JOIN True_WorkPackageLatest
-ON True_WorkPackageQualityUncheck.ProjectID=True_WorkPackageLatest.ProjectID AND
-      True_WorkPackageQualityUncheck.WorkPackageID=True_WorkPackageLatest.WorkPackageID
-LEFT JOIN Fact_WorkPackageDetail
-  ON True_WorkPackageQualityUncheck.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+DROP VIEW IF EXISTS True_TaskFinishedQualityUncheck;
+CREATE VIEW IF NOT EXISTS True_TaskFinishedQualityUncheck AS
+SELECT True_TaskLatest.*,1-(1-QualityRate)*(1-WorkMethodCompleteness) QualityPassRate
+FROM True_TaskQualityUncheck
+LEFT JOIN True_TaskLatest
+ON True_TaskQualityUncheck.ProjectID=True_TaskLatest.ProjectID AND
+      True_TaskQualityUncheck.TaskID=True_TaskLatest.TaskID
+LEFT JOIN Fact_TaskDetail
+  ON True_TaskQualityUncheck.TaskID=Fact_TaskDetail.TaskID
 LEFT JOIN (
     SELECT ProjectID,WorkMethod, 1- sum(RemainingQty)/sum(TotalQty) WorkMethodCompleteness
-    FROM True_WorkPackageLatest
-      LEFT JOIN Fact_WorkPackageDetail
-        ON True_WorkPackageLatest.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+    FROM True_TaskLatest
+      LEFT JOIN Fact_TaskDetail
+        ON True_TaskLatest.TaskID=Fact_TaskDetail.TaskID
     GROUP BY ProjectID,WorkMethod
     )Completenes
-ON True_WorkPackageQualityUncheck.ProjectID=Completenes.ProjectID
-   AND Fact_WorkPackageDetail.WorkMethod=Completenes.WorkMethod
+ON True_TaskQualityUncheck.ProjectID=Completenes.ProjectID
+   AND Fact_TaskDetail.WorkMethod=Completenes.WorkMethod
 WHERE RemainingQty=0;
 
 DROP VIEW IF EXISTS _Result;
 CREATE VIEW IF NOT EXISTS _Result as
-SELECT Fact_WorkPackageDetail.Floor||'-'||Fact_WorkPackageDetail.WorkMethod WPName,Activity.Day Day, ifnull(Fact_WorkPackageDetail.Floor-1+WorkPackageCompleteness,Fact_WorkPackageDetail.Floor-1) Status,
-  Fact_WorkPackageDetail.SubName,Fact_WorkPackageDetail.Floor, Fact_WorkPackageDetail.WorkMethod, Activity.WorkPackageID WorkPackageID,Activity.ProjectID,
+SELECT Fact_TaskDetail.Floor||'-'||Fact_TaskDetail.WorkMethod WPName,Activity.Day Day, ifnull(Fact_TaskDetail.Floor-1+TaskCompleteness,Fact_TaskDetail.Floor-1) Status,
+  Fact_TaskDetail.SubName,Fact_TaskDetail.Floor, Fact_TaskDetail.WorkMethod, Activity.TaskID TaskID,Activity.ProjectID,
   ifnull(abs(Pass-1),0) QualityFail,ProductionRate, CASE WHEN (ProductionRate=0) THEN 1 ELSE 0 END LowProductivity,
   ifnull(Retrace,0) Retrace, CASE WHEN (Event_DesignChange.Day IS NOT NULL ) THEN 1 ELSE 0 END DesignChange,
   CASE WHEN (Event_Meeting.Day IS NOT NULL ) THEN 1 ELSE 0 END Meeting,ifnull(Collision,1) Collision
---   , CASE WHEN Event_DesignChange.Day IS NOT NULL THEN NULL ELSE Floor-1+WorkPackageCompleteness END StatusFiltered
+--   , CASE WHEN Event_DesignChange.Day IS NOT NULL THEN NULL ELSE Floor-1+TaskCompleteness END StatusFiltered
 FROM (
-  SELECT True_SubAppearance.ProjectID ProjectID,True_SubAppearance.WorkPackageID WorkPackageID,
-         True_SubAppearance.Day Day,1-RemainingQty/TotalQty WorkPackageCompleteness,Retrace
+  SELECT True_SubAppearance.ProjectID ProjectID,True_SubAppearance.TaskID TaskID,
+         True_SubAppearance.Day Day,1-RemainingQty/TotalQty TaskCompleteness,Retrace
   FROM True_SubAppearance
     LEFT JOIN (
-                SELECT Log_WorkPackage.ProjectID,Log_WorkPackage.WorkPackageID,RemainingQty,Day,TotalQty,Floor
-                FROM Log_WorkPackage
-                  LEFT JOIN Fact_WorkPackageDetail
-                    ON Log_WorkPackage.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+                SELECT Log_Task.ProjectID,Log_Task.TaskID,RemainingQty,Day,TotalQty,Floor
+                FROM Log_Task
+                  LEFT JOIN Fact_TaskDetail
+                    ON Log_Task.TaskID=Fact_TaskDetail.TaskID
                 WHERE KnowledgeOwner=SubName AND Day>0
-                GROUP BY ProjectID,Log_WorkPackage.WorkPackageID,Day
+                GROUP BY ProjectID,Log_Task.TaskID,Day
               )Work
       ON True_SubAppearance.ProjectID=Work.ProjectID AND
-         True_SubAppearance.WorkPackageID=Work.WorkPackageID AND
+         True_SubAppearance.TaskID=Work.TaskID AND
          True_SubAppearance.Day=Work.Day
   UNION
-  SELECT Begin.*,0 WorkPackageCompleteness,NULL Retrace
+  SELECT Begin.*,0 TaskCompleteness,NULL Retrace
   FROM (
-         SELECT ProjectID,WorkPackageID,Day-1 Day
+         SELECT ProjectID,TaskID,Day-1 Day
          FROM Event_WorkBegin
        ) Begin
     LEFT JOIN True_SubAppearance
       ON Begin.ProjectID=True_SubAppearance.ProjectID AND
          Begin.Day=True_SubAppearance.Day AND
-         Begin.WorkPackageID=True_SubAppearance.WorkPackageID
+         Begin.TaskID=True_SubAppearance.TaskID
   WHERE True_SubAppearance.Day ISNULL
   )Activity
 LEFT JOIN Event_QualityCheck
 ON Event_QualityCheck.ProjectID=Activity.ProjectID AND
-Event_QualityCheck.WorkPackageID=Activity.WorkPackageID AND
+Event_QualityCheck.TaskID=Activity.TaskID AND
 Event_QualityCheck.Day=Activity.Day
 LEFT JOIN Event_Meeting
 ON Event_Meeting.ProjectID=Activity.ProjectID AND
 Event_Meeting.Day=Activity.Day
 LEFT JOIN Event_DesignChange
 ON Event_DesignChange.ProjectID=Activity.ProjectID AND
-Event_DesignChange.WorkPackageID=Activity.WorkPackageID AND
+Event_DesignChange.TaskID=Activity.TaskID AND
 Event_DesignChange.Day=Activity.Day
-LEFT JOIN Fact_WorkPackageDetail
-ON Activity.WorkPackageID=Fact_WorkPackageDetail.WorkPackageID
+LEFT JOIN Fact_TaskDetail
+ON Activity.TaskID=Fact_TaskDetail.TaskID
 LEFT JOIN (
     SELECT ProjectID,Log_ProductionRate.WorkMethod,ProductionRate,Day
     FROM Log_ProductionRate
@@ -648,11 +662,11 @@ LEFT JOIN (
     GROUP BY ProjectID,Log_ProductionRate.WorkMethod,Day
     )Productivity
 ON Activity.ProjectID=Productivity.ProjectID AND
-Fact_WorkPackageDetail.WorkMethod=Productivity.WorkMethod AND
+Fact_TaskDetail.WorkMethod=Productivity.WorkMethod AND
 Productivity.Day=Activity.Day
 LEFT JOIN True_SubCollision
 ON True_SubCollision.ProjectID=Activity.ProjectID AND
 True_SubCollision.Day=Activity.Day AND
-True_SubCollision.SubName=Fact_WorkPackageDetail.SubName;
+True_SubCollision.SubName=Fact_TaskDetail.SubName;
 
 COMMIT;

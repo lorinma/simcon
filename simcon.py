@@ -59,11 +59,11 @@ class Project:
     def all_done(self):
         ids = list()
         if self.quality_check == 0:
-            ids = pd.read_sql_query("SELECT WorkPackageID FROM True_WorkPackageLatest WHERE ProjectID=" + str(
-                self.id) + " and RemainingQty>0", self.engine)['WorkPackageID'].tolist()
+            ids = pd.read_sql_query("SELECT TaskID FROM True_TaskLatest WHERE ProjectID=" + str(
+                self.id) + " and RemainingQty>0", self.engine)['TaskID'].tolist()
         else:
-            ids = pd.read_sql_query("SELECT WorkPackageID FROM True_WorkPackageQualityUncheck WHERE ProjectID=" + str(
-                self.id), self.engine)['WorkPackageID'].tolist()
+            ids = pd.read_sql_query("SELECT TaskID FROM True_TaskQualityUncheck WHERE ProjectID=" + str(
+                self.id), self.engine)['TaskID'].tolist()
         if len(ids) > 0:
             return False
         else:
@@ -97,7 +97,7 @@ class Project:
         self.sync_priority_space(subs)
 
     def sync_work_package(self, subs):
-        status = pd.read_sql_query("SELECT * FROM True_WorkPackageLatest WHERE ProjectID=" + str(
+        status = pd.read_sql_query("SELECT * FROM True_TaskLatest WHERE ProjectID=" + str(
             self.id), self.engine)
         subs_status = subs.merge(status, on=['SubName'], how='inner')
         for sub in subs['SubName'].tolist():
@@ -105,8 +105,8 @@ class Project:
             self.log_wp(subs_status[subs_status.KnowledgeOwner != subs_status.SubName])
 
     def log_wp(self, data):
-        data[['ProjectID', 'KnowledgeOwner', 'WorkPackageID', 'RemainingQty', 'TotalQty', 'Day']].to_sql(
-            name="Log_WorkPackage", con=self.engine, if_exists='append', index=False)
+        data[['ProjectID', 'KnowledgeOwner', 'TaskID', 'RemainingQty', 'TotalQty', 'Day']].to_sql(
+            name="Log_Task", con=self.engine, if_exists='append', index=False)
 
     def sync_production_rate(self, subs):
         status = pd.read_sql_query("SELECT * FROM True_ProductionRateLatest WHERE ProjectID=" + str(
@@ -135,17 +135,17 @@ class Project:
     def work(self, day):
         wps = pd.DataFrame()
         if self.task_selection_function == 0:
-            wps = pd.read_sql_query("SELECT * FROM View_WorkPackageSelectedRandom WHERE ProjectID=" + str(self.id),
+            wps = pd.read_sql_query("SELECT * FROM View_TaskSelectedRandom WHERE ProjectID=" + str(self.id),
                                     self.engine)
         else:
-            wps = pd.read_sql_query("SELECT * FROM View_WorkPackageSelected WHERE ProjectID=" + str(self.id),
+            wps = pd.read_sql_query("SELECT * FROM View_TaskSelected WHERE ProjectID=" + str(self.id),
                                     self.engine)
         wps['Day'] = day
 
         # production rate change
         if self.production_rate_change > 0:
             rates = list()
-            for i in xrange(len(wps['WorkPackageID'])):
+            for i in xrange(len(wps['TaskID'])):
                 rate = max(self.norm_random(wps['ProductionRate'][i], wps['PerformanceStd'][i]), 0)
                 rates.append(rate)
             wps['ProductionRate'] = rates
@@ -153,13 +153,13 @@ class Project:
 
         # check the maturity
         backlog = pd.read_sql_query(
-            "SELECT WorkPackageID,ProjectID FROM True_WorkPackageBacklog WHERE ProjectID=" + str(self.id),
+            "SELECT TaskID,ProjectID FROM True_TaskBacklog WHERE ProjectID=" + str(self.id),
             self.engine)
-        workable = wps.merge(backlog, on=['WorkPackageID', 'ProjectID'], how='inner').reset_index(drop=True)
+        workable = wps.merge(backlog, on=['TaskID', 'ProjectID'], how='inner').reset_index(drop=True)
 
         # mark the beginning day of work packages
         workable[(workable.RemainingQty == workable.TotalQty) & (workable.ProductionRate > 0)][
-            ['ProjectID', 'WorkPackageID', 'Day']].to_sql(name="Event_WorkBegin", con=self.engine, if_exists='append',
+            ['ProjectID', 'TaskID', 'Day']].to_sql(name="Event_WorkBegin", con=self.engine, if_exists='append',
                                                           index=False)
         # the RemainingQty is no less than 0
         workable['RemainingQty'] = workable['RemainingQty'] - workable['ProductionRate']
@@ -167,8 +167,8 @@ class Project:
         self.log_wp(workable)
 
         # upload retrace
-        retrace = wps[~wps.WorkPackageID.isin(workable.WorkPackageID)].reset_index(drop=True)
-        retrace[['ProjectID', 'WorkPackageID', 'Day']].to_sql(name="Event_Retrace", con=self.engine, if_exists='append',
+        retrace = wps[~wps.TaskID.isin(workable.TaskID)].reset_index(drop=True)
+        retrace[['ProjectID', 'TaskID', 'Day']].to_sql(name="Event_Retrace", con=self.engine, if_exists='append',
                                                               index=False)
         # self.log_wp(retrace)
 
@@ -177,7 +177,7 @@ class Project:
         floors = wps['Floor']
         for i in xrange(len(subs)):
             klg = pd.read_sql_query(
-                "SELECT * FROM True_WorkPackageLatest WHERE ProjectID=" + str(self.id) + " AND Floor=" + str(
+                "SELECT * FROM True_TaskLatest WHERE ProjectID=" + str(self.id) + " AND Floor=" + str(
                     floors[i]), self.engine)
             klg['KnowledgeOwner'] = subs[i]
             self.log_wp(klg[klg.KnowledgeOwner != klg.SubName])
@@ -217,7 +217,7 @@ class Project:
 
         wp = pd.read_sql_query("SELECT * FROM True_DesignChangeRandom WHERE ProjectID=" + str(self.id),
                                self.engine)
-        if len(wp['WorkPackageID']) == 0:
+        if len(wp['TaskID']) == 0:
             return 0
         qty = 0
         # if the work package has not been started, then just update the status in the initial state
@@ -231,22 +231,22 @@ class Project:
 
         # always mark the day when it is changed in design change log
         wp['Day'] = day
-        wp[['ProjectID', 'WorkPackageID', 'TotalQty', 'Day']].to_sql(name="Event_DesignChange", con=self.engine,
+        wp[['ProjectID', 'TaskID', 'TotalQty', 'Day']].to_sql(name="Event_DesignChange", con=self.engine,
                                                                      if_exists='append', index=False)
 
     def check(self, day):
         if self.quality_check == 0:
             return 0
-        wps = pd.read_sql_query("SELECT * FROM True_WorkPackageFinishedQualityUncheck WHERE ProjectID=" + str(self.id),
+        wps = pd.read_sql_query("SELECT * FROM True_TaskFinishedQualityUncheck WHERE ProjectID=" + str(self.id),
                                 self.engine)
-        if len(wps['WorkPackageID']) == 0:
+        if len(wps['TaskID']) == 0:
             return 0
         passed = list()
-        for i in xrange(len(wps['WorkPackageID'])):
+        for i in xrange(len(wps['TaskID'])):
             passed.append(np.random.binomial(1, wps['QualityPassRate'][i], 1)[0])
         wps['Pass'] = passed
         wps['Day'] = day
-        wps[['ProjectID', 'WorkPackageID', 'Day', 'Pass']].to_sql(name="Event_QualityCheck", con=self.engine,
+        wps[['ProjectID', 'TaskID', 'Day', 'Pass']].to_sql(name="Event_QualityCheck", con=self.engine,
                                                                   if_exists='append', index=False)
         rework = wps[wps.Pass == 0].reset_index(drop=True)
         rework['RemainingQty'] = rework['TotalQty']
@@ -256,9 +256,9 @@ class Project:
         # these klg have been updated in work function i.e who has known who worked where
         # and needs to be filtered out
         confirmed['F'] = 1
-        wps = pd.read_sql_query("SELECT * FROM View_WorkPackageBacklogPriority WHERE ProjectID=" + str(self.id),
+        wps = pd.read_sql_query("SELECT * FROM View_TaskBacklogPriority WHERE ProjectID=" + str(self.id),
                                 self.engine)
-        if len(confirmed['F'])==0 and len(wps['WorkPackageID'])==0:
+        if len(confirmed['F'])==0 and len(wps['TaskID'])==0:
             self.meet_all(day)
             return 0
 
@@ -272,11 +272,11 @@ class Project:
         wps = wps[wps.S.isnull()].reset_index(drop=True)
 
         if self.task_selection_function == 0:
-            wps = wps.sort(['ProjectID', 'KnowledgeOwner', 'SubName', 'WorkPackageCompleteness', 'Priority', 'Ran'],
+            wps = wps.sort(['ProjectID', 'KnowledgeOwner', 'SubName', 'TaskCompleteness', 'Priority', 'Ran'],
                            ascending=[1, 1, 1, 0, 0, 0])
         else:
             wps = wps.sort(
-                ['ProjectID', 'KnowledgeOwner', 'SubName', 'WorkPackageCompleteness', 'Priority', 'FloorCompleteness',
+                ['ProjectID', 'KnowledgeOwner', 'SubName', 'TaskCompleteness', 'Priority', 'FloorCompleteness',
                  'SuccessorWorkContribution', 'SuccessorWork','FloorTotalWork','WorkMethodCompleteness',
                  'ProductionRate', 'Ran'],
                 ascending=[1, 1, 1, 0, 0, 0,
@@ -312,11 +312,11 @@ class Simulation:
         result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
         result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
         # result[['WPName', 'Date', 'Day', 'StatusFiltered', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
-        #         'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'ProjectID', 'WorkPackageID']].to_csv(
+        #         'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'ProjectID', 'TaskID']].to_csv(
         #     filename, sep='\t', encoding='utf-8',
         #     index=False)
         result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
-                'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail','Collision', 'ProductionRate', 'ProjectID', 'WorkPackageID']].to_csv(
+                'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail','Collision', 'ProductionRate', 'ProjectID', 'TaskID']].to_csv(
             filename, sep='\t', encoding='utf-8',
             index=False)
 
