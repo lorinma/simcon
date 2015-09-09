@@ -12,10 +12,95 @@ CREATE TABLE IF NOT EXISTS "Fact_Project" (
 	`TaskSelectionFunction`	INTEGER NOT NULL DEFAULT 0,
 	`Done`	INTEGER NOT NULL DEFAULT 0
 );
+
 INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
                             DesignChangeVariation,ProductionRateChange,
                             QualityCheck,TaskSelectionFunction)
-VALUES (0,9,1.0,1,1,0);
+SELECT *
+FROM (
+  SELECT 7,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 7,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,1
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,0
+--   UNION ALL
+--   SELECT 0,9,1.0,1,1,0
+);
+
+-- VALUES (0,9,1.0,1,1,0);
+
 -- INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
 --                             DesignChangeVariation,ProductionRateChange,
 --                             QualityCheck,TaskSelectionFunction)
@@ -236,16 +321,17 @@ CREATE TABLE IF NOT EXISTS "Event_WorkBegin" (
 	FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID )
 );
 
-UPDATE Fact_Project SET Done=0;
-delete from Event_DesignChange where ProjectID in (select ID from Fact_Project where Done=0);
-delete from Event_Meeting where ProjectID in (select ID from Fact_Project where Done=0);
-delete from Event_QualityCheck where ProjectID in (select ID from Fact_Project where Done=0);
-delete from Event_Retrace where ProjectID in (select ID from Fact_Project where Done=0);
-delete from Event_WorkBegin where ProjectID in (select ID from Fact_Project where Done=0);
+-- UPDATE Fact_Project SET Done=0;
+-- DELETE FROM Fact_Project WHERE ID>2;
+delete from Event_DesignChange where ProjectID not in (select ID from Fact_Project where Done=1);
+delete from Event_Meeting where ProjectID NOT in (select ID from Fact_Project where Done=1);
+delete from Event_QualityCheck where ProjectID NOT in (select ID from Fact_Project where Done=1);
+delete from Event_Retrace where ProjectID not in (select ID from Fact_Project where Done=1);
+delete from Event_WorkBegin where ProjectID NOT in (select ID from Fact_Project where Done=1);
 
-delete from Log_ProductionRate where ProjectID in (select ID from Fact_Project where Done=0);
-delete from Log_Task where ProjectID in (select ID from Fact_Project where Done=0);
-delete from Log_WorkSpacePriority where ProjectID in (select ID from Fact_Project where Done=0);
+delete from Log_ProductionRate where ProjectID NOT in (select ID from Fact_Project where Done=1);
+delete from Log_Task where ProjectID NOT in (select ID from Fact_Project where Done=1);
+delete from Log_WorkSpacePriority where ProjectID NOT in (select ID from Fact_Project where Done=1);
 
 insert into Log_ProductionRate (KnowledgeOwner,ProductionRate,WorkMethod, ProjectID)
 select A.SubName KnowledgeOwner, InitialProductionRate ProductionRate, WorkMethod, C.ID ProjectID from Fact_Sub A join Fact_WorkMethod B join Fact_Project C where C.Done=0;
@@ -255,9 +341,6 @@ select B.SubName KnowledgeOwner, TaskID, InitialQty RemainingQty, InitialQty Tot
 
 insert into Log_WorkSpacePriority (KnowledgeOwner,Floor,Priority,SubName,ProjectID)
 select A.SubName KnowledgeOwner, B.Floor, B.InitialPriority Priority, C.SubName SubName, D.ID ProjectID from Fact_Sub A join Fact_WorkSpace B join Fact_Sub C join Fact_Project D where D.Done=0;
-
-
-
 
 
 
@@ -335,9 +418,21 @@ FROM (
 )
 GROUP BY ProjectID,KnowledgeOwner,TaskID;
 
+DROP VIEW IF EXISTS View_SubAppearanceLatest;
+CREATE VIEW IF NOT EXISTS View_SubAppearanceLatest as
+SELECT ProjectID, KnowledgeOwner, SubName,Floor
+FROM (
+  SELECT ProjectID,KnowledgeOwner,SubName,Day,Log_Task.TaskID, Floor
+  FROM Log_Task
+    LEFT JOIN Fact_TaskDetail
+    ON Log_Task.TaskID=Fact_TaskDetail.TaskID
+  WHERE Day>0
+  ORDER BY ProjectID, KnowledgeOwner, SubName,Day
+) GROUP BY ProjectID, KnowledgeOwner, SubName;
+
 DROP VIEW IF EXISTS View_TaskBacklog;
 CREATE VIEW IF NOT EXISTS View_TaskBacklog as
-SELECT BacklogDetail.*,1-RemainingQty/TotalQty TaskCompleteness, Priority,ProductionRate, random()%1000 Ran
+SELECT BacklogDetail.*,1-RemainingQty/TotalQty TaskCompleteness,View_SubAppearanceLatest.Floor LastFloor, Priority,ProductionRate, random()%1000 Ran
 FROM (
        SELECT Backlog.*,SubName,Floor,WorkMethod
        FROM (
@@ -407,6 +502,10 @@ FROM (
     ON BacklogDetail.ProjectID=Productivity.ProjectID AND
        BacklogDetail.WorkMethod=Productivity.WorkMethod AND
        BacklogDetail.KnowledgeOwner=Productivity.KnowledgeOwner
+  LEFT JOIN View_SubAppearanceLatest
+  ON BacklogDetail.ProjectID=View_SubAppearanceLatest.ProjectID AND
+     BacklogDetail.KnowledgeOwner=View_SubAppearanceLatest.KnowledgeOwner AND
+      BacklogDetail.SubName=View_SubAppearanceLatest.SubName
 ORDER BY ProjectID,KnowledgeOwner,SubName, TaskCompleteness, Priority, Ran;
 
 DROP VIEW IF EXISTS View_TaskBacklogPriority;
@@ -669,4 +768,37 @@ ON True_SubCollision.ProjectID=Activity.ProjectID AND
 True_SubCollision.Day=Activity.Day AND
 True_SubCollision.SubName=Fact_TaskDetail.SubName;
 
+DROP VIEW IF EXISTS Result_WaitingDays;
+CREATE VIEW IF NOT EXISTS Result_WaitingDays AS
+SELECT Start.*,EndDay,EndDay-StartDay-WorkDays+1 WaitingDays,WorkDays
+FROM (
+  SELECT ProjectID,SubName,Day StartDay
+  FROM (
+    SELECT *
+    FROM Event_WorkBegin
+      LEFT JOIN Fact_TaskDetail
+        ON Event_WorkBegin.TaskID=Fact_TaskDetail.TaskID
+    ORDER BY ProjectID,SubName,Day DESC
+  )
+  GROUP BY ProjectID,SubName
+)Start
+LEFT JOIN (
+    SELECT ProjectID,SubName,Day EndDay
+    FROM (
+      SELECT *
+      FROM True_TaskLatest
+      ORDER BY ProjectID,SubName,Day
+    )
+    GROUP BY ProjectID,SubName
+    )End
+ON Start.ProjectID=End.ProjectID and Start.SubName=End.SubName
+LEFT JOIN (
+    SELECT ProjectID,SubName, count(Day) WorkDays
+    FROM True_TaskTrace
+    WHERE RemainingQty<>TotalQty
+    GROUP BY ProjectID,SubName
+    )Work
+ON Start.ProjectID=Work.ProjectID AND Start.SubName=Work.SubName AND End.ProjectID=Work.ProjectID AND End.SubName=Work.SubName;
+
 COMMIT;
+

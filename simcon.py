@@ -296,7 +296,7 @@ class Project:
 class Simulation:
     def __init__(self):
         self.engine = create_engine("sqlite:///simcon")
-        runs = pd.read_sql_query("SELECT * FROM Fact_Project", self.engine)
+        runs = pd.read_sql_query("SELECT * FROM Fact_Project WHERE Done=0", self.engine)
         self.projects = list()
         for i in xrange(len(runs['ID'])):
             self.projects.append(
