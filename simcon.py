@@ -201,7 +201,10 @@ class Project:
             return 0
         floors = col['Floor'].unique()
         for floor in floors:
-            self.sync(col[col.Floor == floor][['SubName']])
+            # only need to update their production rate and space priority
+            # no need to sync wp status, since these have been update by sync_space
+            self.sync_production_rate(col[col.Floor == floor][['SubName']])
+            self.sync_priority_space(col[col.Floor == floor][['SubName']])
 
     def design_change(self, day):
         if self.design_change_cycle == 0 or day == 1 or (
