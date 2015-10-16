@@ -56,6 +56,7 @@ class Project:
         project = Table('Fact_Project', MetaData(), autoload=True, autoload_with=self.engine)
         self.engine.execute(project.update().where(project.c.ID == self.id).values(Done=1))
 
+
     def all_done(self):
         ids = list()
         if self.quality_check == 0:

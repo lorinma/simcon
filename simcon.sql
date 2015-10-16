@@ -18,7 +18,7 @@ INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
                             QualityCheck,TaskSelectionFunction)
 SELECT *
 FROM (
-  SELECT 7,9,1.0,1,1,1
+  SELECT 2,1,1.0,1,1,1
 --   UNION ALL
 --   SELECT 7,9,1.0,1,1,1
 --   UNION ALL
@@ -98,21 +98,6 @@ FROM (
 --   UNION ALL
 --   SELECT 0,9,1.0,1,1,0
 );
-
--- VALUES (0,9,1.0,1,1,0);
-
--- INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
---                             DesignChangeVariation,ProductionRateChange,
---                             QualityCheck,TaskSelectionFunction)
--- VALUES (7,9,1.0,1,1,0);
--- INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
---                             DesignChangeVariation,ProductionRateChange,
---                             QualityCheck,TaskSelectionFunction)
--- VALUES (0,9,1.0,1,1,1);
--- INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
---                             DesignChangeVariation,ProductionRateChange,
---                             QualityCheck,TaskSelectionFunction)
--- VALUES (7,9,1.0,1,1,1);
 
 DROP TABLE IF EXISTS "Fact_Sub";
 CREATE TABLE IF NOT EXISTS "Fact_Sub" (
@@ -322,7 +307,7 @@ CREATE TABLE IF NOT EXISTS "Event_WorkBegin" (
 );
 
 -- UPDATE Fact_Project SET Done=0;
--- DELETE FROM Fact_Project WHERE ID>2;
+-- DELETE FROM Fact_Project WHERE ID>58;
 delete from Event_DesignChange where ProjectID not in (select ID from Fact_Project where Done=1);
 delete from Event_Meeting where ProjectID NOT in (select ID from Fact_Project where Done=1);
 delete from Event_QualityCheck where ProjectID NOT in (select ID from Fact_Project where Done=1);
@@ -801,4 +786,3 @@ LEFT JOIN (
 ON Start.ProjectID=Work.ProjectID AND Start.SubName=Work.SubName AND End.ProjectID=Work.ProjectID AND End.SubName=Work.SubName;
 
 COMMIT;
-
