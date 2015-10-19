@@ -44,8 +44,9 @@ class Project:
         self.priority_change = priority_change
         self.task_selection_function = task_selection_function
         self.id = id
-        json_key = json.load(open('OAuth2Credentials.json'))
-        self.random_key = json_key['random_org_key']
+        # json_key = json.load(open('OAuth2Credentials.json'))
+        # self.random_key = json_key['random_org_key']
+        self.random_key = "68542f15-4c78-4ad4-8540-d60243a76ee3"
 
     def run(self):
         day = 1
@@ -55,7 +56,6 @@ class Project:
             day += 1
         project = Table('Fact_Project', MetaData(), autoload=True, autoload_with=self.engine)
         self.engine.execute(project.update().where(project.c.ID == self.id).values(Done=1))
-
 
     def all_done(self):
         ids = list()
@@ -161,7 +161,7 @@ class Project:
         # mark the beginning day of work packages
         workable[(workable.RemainingQty == workable.TotalQty) & (workable.ProductionRate > 0)][
             ['ProjectID', 'TaskID', 'Day']].to_sql(name="Event_WorkBegin", con=self.engine, if_exists='append',
-                                                          index=False)
+                                                   index=False)
         # the RemainingQty is no less than 0
         workable['RemainingQty'] = workable['RemainingQty'] - workable['ProductionRate']
         workable.loc[workable['RemainingQty'] < 0, 'RemainingQty'] = 0
@@ -170,7 +170,7 @@ class Project:
         # upload retrace
         retrace = wps[~wps.TaskID.isin(workable.TaskID)].reset_index(drop=True)
         retrace[['ProjectID', 'TaskID', 'Day']].to_sql(name="Event_Retrace", con=self.engine, if_exists='append',
-                                                              index=False)
+                                                       index=False)
         # self.log_wp(retrace)
 
         # remember what he see in the floor
@@ -212,7 +212,7 @@ class Project:
                     day - 1) % self.design_change_cycle != 0 or self.design_change_variation == 0:
             return 0
         project_completeness = pd.read_sql_query(
-            "SELECT * FROM True_ProjectCompleteness WHERE ProjectID=" + str(self.id),
+            "SELECT TotalCompleteness FROM True_ProjectCompleteness WHERE ProjectID=" + str(self.id),
             self.engine).TotalCompleteness.tolist()
         # if most of the work in the project has been completed, then the design will not be changed
         change_flag = np.random.binomial(1, project_completeness[0], 1)[0]
@@ -226,7 +226,7 @@ class Project:
         qty = 0
         # if the work package has not been started, then just update the status in the initial state
         # and don't change the date to today in log_wp
-        wp.loc[wp.RemainingQty < wp.TotalQty,'Day']=day
+        wp.loc[wp.RemainingQty < wp.TotalQty, 'Day'] = day
         while not qty > 0:
             qty = self.norm_random(wp['TotalQty'][0], self.design_change_variation)
         wp['TotalQty'] = qty
@@ -236,7 +236,7 @@ class Project:
         # always mark the day when it is changed in design change log
         wp['Day'] = day
         wp[['ProjectID', 'TaskID', 'TotalQty', 'Day']].to_sql(name="Event_DesignChange", con=self.engine,
-                                                                     if_exists='append', index=False)
+                                                              if_exists='append', index=False)
 
     def check(self, day):
         if self.quality_check == 0:
@@ -251,7 +251,7 @@ class Project:
         wps['Pass'] = passed
         wps['Day'] = day
         wps[['ProjectID', 'TaskID', 'Day', 'Pass']].to_sql(name="Event_QualityCheck", con=self.engine,
-                                                                  if_exists='append', index=False)
+                                                           if_exists='append', index=False)
         rework = wps[wps.Pass == 0].reset_index(drop=True)
         rework['RemainingQty'] = rework['TotalQty']
         self.log_wp(rework)
@@ -262,7 +262,7 @@ class Project:
         confirmed['F'] = 1
         wps = pd.read_sql_query("SELECT * FROM View_TaskBacklogPriority WHERE ProjectID=" + str(self.id),
                                 self.engine)
-        if len(confirmed['F'])==0 and len(wps['TaskID'])==0:
+        if len(confirmed['F']) == 0 and len(wps['TaskID']) == 0:
             self.meet_all(day)
             return 0
 
@@ -276,12 +276,21 @@ class Project:
         wps = wps[wps.S.isnull()].reset_index(drop=True)
 
         if self.task_selection_function == 0:
-            wps = wps.sort(['ProjectID', 'KnowledgeOwner', 'SubName', 'TaskCompleteness', 'Priority', 'Ran'],
-                           ascending=[1, 1, 1, 0, 0, 0])
+            # wps = wps.sort(['ProjectID', 'KnowledgeOwner', 'SubName', 'TaskCompleteness', 'Priority', 'Ran'],
+            #                ascending=[1, 1, 1, 0, 0, 0])
+            wps = wps.sort_values(['ProjectID', 'KnowledgeOwner', 'SubName', 'TaskCompleteness', 'Priority', 'Ran'],
+                            ascending=[1, 1, 1, 0, 0, 0])
         else:
-            wps = wps.sort(
+            # wps = wps.sort(
+            #     ['ProjectID', 'KnowledgeOwner', 'SubName', 'TaskCompleteness', 'Priority', 'FloorCompleteness',
+            #      'SuccessorWorkContribution', 'SuccessorWork', 'FloorTotalWork', 'WorkMethodCompleteness',
+            #      'ProductionRate', 'Ran'],
+            #     ascending=[1, 1, 1, 0, 0, 0,
+            #                0, 0, 1, 0,
+            #                0, 0])
+            wps = wps.sort_values(
                 ['ProjectID', 'KnowledgeOwner', 'SubName', 'TaskCompleteness', 'Priority', 'FloorCompleteness',
-                 'SuccessorWorkContribution', 'SuccessorWork','FloorTotalWork','WorkMethodCompleteness',
+                 'SuccessorWorkContribution', 'SuccessorWork', 'FloorTotalWork', 'WorkMethodCompleteness',
                  'ProductionRate', 'Ran'],
                 ascending=[1, 1, 1, 0, 0, 0,
                            0, 0, 1, 0,
@@ -320,7 +329,8 @@ class Simulation:
         #     filename, sep='\t', encoding='utf-8',
         #     index=False)
         result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
-                'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail','Collision', 'ProductionRate', 'ProjectID', 'TaskID']].to_csv(
+                'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'Collision', 'ProductionRate', 'ProjectID',
+                'TaskID']].to_csv(
             filename, sep='\t', encoding='utf-8',
             index=False)
 

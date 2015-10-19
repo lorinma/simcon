@@ -12,91 +12,94 @@ CREATE TABLE IF NOT EXISTS "Fact_Project" (
 	`TaskSelectionFunction`	INTEGER NOT NULL DEFAULT 0,
 	`Done`	INTEGER NOT NULL DEFAULT 0
 );
-
 INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
                             DesignChangeVariation,ProductionRateChange,
-                            QualityCheck,TaskSelectionFunction)
-SELECT *
-FROM (
-  SELECT 2,1,1.0,1,1,1
---   UNION ALL
---   SELECT 7,9,1.0,1,1,1
---   UNION ALL
---   SELECT 7,9,1.0,1,1,1
---   UNION ALL
---   SELECT 7,9,1.0,1,1,1
---   UNION ALL
---   SELECT 7,9,1.0,1,1,1
---   UNION ALL
---   SELECT 7,9,1.0,1,1,1
---   UNION ALL
---   SELECT 7,9,1.0,1,1,1
---   UNION ALL
---   SELECT 7,9,1.0,1,1,1
---   UNION ALL
---   SELECT 7,9,1.0,1,1,1
---   UNION ALL
---   SELECT 7,9,1.0,1,1,1
---   UNION ALL
---   SELECT 7,9,1.0,1,1,0
---   UNION ALL
---   SELECT 7,9,1.0,1,1,0
---   UNION ALL
---   SELECT 7,9,1.0,1,1,0
---   UNION ALL
---   SELECT 7,9,1.0,1,1,0
---   UNION ALL
---   SELECT 7,9,1.0,1,1,0
---   UNION ALL
---   SELECT 7,9,1.0,1,1,0
---   UNION ALL
---   SELECT 7,9,1.0,1,1,0
---   UNION ALL
---   SELECT 7,9,1.0,1,1,0
---   UNION ALL
---   SELECT 7,9,1.0,1,1,0
---   UNION ALL
---   SELECT 7,9,1.0,1,1,0
---   UNION ALL
---   SELECT 0,9,1.0,1,1,1
---   UNION ALL
---   SELECT 0,9,1.0,1,1,1
---   UNION ALL
---   SELECT 0,9,1.0,1,1,1
---   UNION ALL
---   SELECT 0,9,1.0,1,1,1
---   UNION ALL
---   SELECT 0,9,1.0,1,1,1
---   UNION ALL
---   SELECT 0,9,1.0,1,1,1
---   UNION ALL
---   SELECT 0,9,1.0,1,1,1
---   UNION ALL
---   SELECT 0,9,1.0,1,1,1
---   UNION ALL
---   SELECT 0,9,1.0,1,1,1
---   UNION ALL
---   SELECT 0,9,1.0,1,1,1
---   UNION ALL
---   SELECT 0,9,1.0,1,1,0
---   UNION ALL
---   SELECT 0,9,1.0,1,1,0
---   UNION ALL
---   SELECT 0,9,1.0,1,1,0
---   UNION ALL
---   SELECT 0,9,1.0,1,1,0
---   UNION ALL
---   SELECT 0,9,1.0,1,1,0
---   UNION ALL
---   SELECT 0,9,1.0,1,1,0
---   UNION ALL
---   SELECT 0,9,1.0,1,1,0
---   UNION ALL
---   SELECT 0,9,1.0,1,1,0
---   UNION ALL
---   SELECT 0,9,1.0,1,1,0
---   UNION ALL
---   SELECT 0,9,1.0,1,1,0
+                            QualityCheck,TaskSelectionFunction) SELECT * FROM (
+  SELECT
+    2,
+    9,
+    1.0,
+    1,
+    1,
+    1
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 7,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,1
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,0
+  --   UNION ALL
+  --   SELECT 0,9,1.0,1,1,0
 );
 
 DROP TABLE IF EXISTS "Fact_Sub";
@@ -104,11 +107,17 @@ CREATE TABLE IF NOT EXISTS "Fact_Sub" (
 	`SubName`	TEXT NOT NULL UNIQUE,
 	PRIMARY KEY(SubName)
 );
-INSERT INTO `Fact_Sub` VALUES ('Electricity');
-INSERT INTO `Fact_Sub` VALUES ('Gravel');
-INSERT INTO `Fact_Sub` VALUES ('Partition');
-INSERT INTO `Fact_Sub` VALUES ('Plumbing');
-INSERT INTO `Fact_Sub` VALUES ('Tiling');
+INSERT INTO 'Fact_Sub' (SubName) SELECT * FROM (
+  SELECT 'Electricity'
+  UNION ALL
+  SELECT 'Gravel'
+  UNION ALL
+  SELECT 'Partition'
+  UNION ALL
+  SELECT 'Plumbing'
+  UNION ALL
+  SELECT 'Tiling'
+);
 
 DROP TABLE IF EXISTS "Fact_WorkSpace";
 CREATE TABLE IF NOT EXISTS "Fact_WorkSpace" (
@@ -116,11 +125,27 @@ CREATE TABLE IF NOT EXISTS "Fact_WorkSpace" (
 	`InitialPriority`	REAL NOT NULL,
 	PRIMARY KEY(Floor)
 );
-INSERT INTO `Fact_WorkSpace` VALUES (1,5.0);
-INSERT INTO `Fact_WorkSpace` VALUES (2,4.0);
-INSERT INTO `Fact_WorkSpace` VALUES (3,3.0);
-INSERT INTO `Fact_WorkSpace` VALUES (4,2.0);
-INSERT INTO `Fact_WorkSpace` VALUES (5,1.0);
+INSERT INTO  'Fact_WorkSpace' (Floor, InitialPriority) SELECT * FROM (
+  SELECT
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    2,
+    4.0
+  UNION ALL
+  SELECT
+    3,
+    3.0
+  UNION ALL
+  SELECT
+    4,
+    2.0
+  UNION ALL
+  SELECT
+    5,
+    1.0
+);
 
 DROP TABLE IF EXISTS "Fact_WorkMethod";
 CREATE TABLE IF NOT EXISTS "Fact_WorkMethod" (
@@ -132,15 +157,70 @@ CREATE TABLE IF NOT EXISTS "Fact_WorkMethod" (
 	PRIMARY KEY(WorkMethod),
 	FOREIGN KEY(`SubName`) REFERENCES Fact_Sub ( SubName )
 );
-INSERT INTO `Fact_WorkMethod` VALUES ('Gravel','Gravel base layer',1.0,0.9,0.3);
-INSERT INTO `Fact_WorkMethod` VALUES ('Plumbing','Pipes in the floor',1.0,0.9,0.3);
-INSERT INTO `Fact_WorkMethod` VALUES ('Electricity','Electric conduits in the floor',1.0,0.9,0.3);
-INSERT INTO `Fact_WorkMethod` VALUES ('Tiling','Floor tiling',1.0,0.9,0.3);
-INSERT INTO `Fact_WorkMethod` VALUES ('Partition','Partition phase 1',1.0,0.9,0.3);
-INSERT INTO `Fact_WorkMethod` VALUES ('Plumbing','Pipes in the wall',1.0,0.9,0.3);
-INSERT INTO `Fact_WorkMethod` VALUES ('Electricity','Electric conduits in the wall',1.0,0.9,0.3);
-INSERT INTO `Fact_WorkMethod` VALUES ('Partition','Partition phase 2',1.0,0.9,0.3);
-INSERT INTO `Fact_WorkMethod` VALUES ('Tiling','Wall tiling',1.0,0.9,0.3);
+INSERT INTO `Fact_WorkMethod` (SubName, WorkMethod, InitialProductionRate, QualityRate, PerformanceStd) SELECT * FROM (
+  SELECT
+    'Gravel',
+    'Gravel base layer',
+    1.0,
+    0.9,
+    0.3
+  UNION ALL
+  SELECT
+    'Plumbing',
+    'Pipes in the floor',
+    1.0,
+    0.9,
+    0.3
+  UNION ALL
+  SELECT
+    'Electricity',
+    'Electric conduits in the floor',
+    1.0,
+    0.9,
+    0.3
+  UNION ALL
+  SELECT
+    'Tiling',
+    'Floor tiling',
+    1.0,
+    0.9,
+    0.3
+  UNION ALL
+  SELECT
+    'Partition',
+    'Partition phase 1',
+    1.0,
+    0.9,
+    0.3
+  UNION ALL
+  SELECT
+    'Plumbing',
+    'Pipes in the wall',
+    1.0,
+    0.9,
+    0.3
+  UNION ALL
+  SELECT
+    'Electricity',
+    'Electric conduits in the wall',
+    1.0,
+    0.9,
+    0.3
+  UNION ALL
+  SELECT
+    'Partition',
+    'Partition phase 2',
+    1.0,
+    0.9,
+    0.3
+  UNION ALL
+  SELECT
+    'Tiling',
+    'Wall tiling',
+    1.0,
+    0.9,
+    0.3
+);
 
 DROP TABLE IF EXISTS "Fact_WorkMethodDependency";
 CREATE TABLE IF NOT EXISTS "Fact_WorkMethodDependency" (
@@ -149,15 +229,43 @@ CREATE TABLE IF NOT EXISTS "Fact_WorkMethodDependency" (
 	FOREIGN KEY(`PredecessorWorkMethod`) REFERENCES Fact_WorkMethod ( WorkMethod ),
 	FOREIGN KEY(`SuccessorWorkMethod`) REFERENCES Fact_WorkMethod ( WorkMethod )
 );
-INSERT INTO `Fact_WorkMethodDependency` VALUES ('Gravel base layer','Pipes in the floor');
-INSERT INTO `Fact_WorkMethodDependency` VALUES ('Gravel base layer','Electric conduits in the floor');
-INSERT INTO `Fact_WorkMethodDependency` VALUES ('Pipes in the floor','Floor tiling');
-INSERT INTO `Fact_WorkMethodDependency` VALUES ('Electric conduits in the floor','Floor tiling');
-INSERT INTO `Fact_WorkMethodDependency` VALUES ('Partition phase 1','Pipes in the wall');
-INSERT INTO `Fact_WorkMethodDependency` VALUES ('Partition phase 1','Electric conduits in the wall');
-INSERT INTO `Fact_WorkMethodDependency` VALUES ('Pipes in the wall','Partition phase 2');
-INSERT INTO `Fact_WorkMethodDependency` VALUES ('Electric conduits in the wall','Partition phase 2');
-INSERT INTO `Fact_WorkMethodDependency` VALUES ('Partition phase 2','Wall tiling');
+INSERT INTO `Fact_WorkMethodDependency` (PredecessorWorkMethod, SuccessorWorkMethod) SELECT * FROM (
+  SELECT
+    'Gravel base layer',
+    'Pipes in the floor'
+  UNION ALL
+  SELECT
+    'Gravel base layer',
+    'Electric conduits in the floor'
+  UNION ALL
+  SELECT
+    'Pipes in the floor',
+    'Floor tiling'
+  UNION ALL
+  SELECT
+    'Electric conduits in the floor',
+    'Floor tiling'
+  UNION ALL
+  SELECT
+    'Partition phase 1',
+    'Pipes in the wall'
+  UNION ALL
+  SELECT
+    'Partition phase 1',
+    'Electric conduits in the wall'
+  UNION ALL
+  SELECT
+    'Pipes in the wall',
+    'Partition phase 2'
+  UNION ALL
+  SELECT
+    'Electric conduits in the wall',
+    'Partition phase 2'
+  UNION ALL
+  SELECT
+    'Partition phase 2',
+    'Wall tiling'
+);
 
 DROP TABLE IF EXISTS "Fact_Task";
 CREATE TABLE IF NOT EXISTS "Fact_Task" (
@@ -168,51 +276,277 @@ CREATE TABLE IF NOT EXISTS "Fact_Task" (
 	FOREIGN KEY(`WorkMethod`) REFERENCES Fact_WorkMethod ( WorkMethod ),
 	FOREIGN KEY(`Floor`) REFERENCES Fact_WorkSpace ( Floor )
 );
-INSERT INTO `Fact_Task` VALUES (1,'Gravel base layer',1,5.0);
-INSERT INTO `Fact_Task` VALUES (2,'Gravel base layer',2,5.0);
-INSERT INTO `Fact_Task` VALUES (3,'Gravel base layer',3,5.0);
-INSERT INTO `Fact_Task` VALUES (4,'Gravel base layer',4,5.0);
-INSERT INTO `Fact_Task` VALUES (5,'Gravel base layer',5,5.0);
-INSERT INTO `Fact_Task` VALUES (6,'Pipes in the floor',1,5.0);
-INSERT INTO `Fact_Task` VALUES (7,'Pipes in the floor',2,5.0);
-INSERT INTO `Fact_Task` VALUES (8,'Pipes in the floor',3,5.0);
-INSERT INTO `Fact_Task` VALUES (9,'Pipes in the floor',4,5.0);
-INSERT INTO `Fact_Task` VALUES (10,'Pipes in the floor',5,5.0);
-INSERT INTO `Fact_Task` VALUES (11,'Electric conduits in the floor',1,5.0);
-INSERT INTO `Fact_Task` VALUES (12,'Electric conduits in the floor',2,5.0);
-INSERT INTO `Fact_Task` VALUES (13,'Electric conduits in the floor',3,5.0);
-INSERT INTO `Fact_Task` VALUES (14,'Electric conduits in the floor',4,5.0);
-INSERT INTO `Fact_Task` VALUES (15,'Electric conduits in the floor',5,5.0);
-INSERT INTO `Fact_Task` VALUES (16,'Floor tiling',1,5.0);
-INSERT INTO `Fact_Task` VALUES (17,'Floor tiling',2,5.0);
-INSERT INTO `Fact_Task` VALUES (18,'Floor tiling',3,5.0);
-INSERT INTO `Fact_Task` VALUES (19,'Floor tiling',4,5.0);
-INSERT INTO `Fact_Task` VALUES (20,'Floor tiling',5,5.0);
-INSERT INTO `Fact_Task` VALUES (21,'Partition phase 1',1,5.0);
-INSERT INTO `Fact_Task` VALUES (22,'Partition phase 1',2,5.0);
-INSERT INTO `Fact_Task` VALUES (23,'Partition phase 1',3,5.0);
-INSERT INTO `Fact_Task` VALUES (24,'Partition phase 1',4,5.0);
-INSERT INTO `Fact_Task` VALUES (25,'Partition phase 1',5,5.0);
-INSERT INTO `Fact_Task` VALUES (26,'Pipes in the wall',1,5.0);
-INSERT INTO `Fact_Task` VALUES (27,'Pipes in the wall',2,5.0);
-INSERT INTO `Fact_Task` VALUES (28,'Pipes in the wall',3,5.0);
-INSERT INTO `Fact_Task` VALUES (29,'Pipes in the wall',4,5.0);
-INSERT INTO `Fact_Task` VALUES (30,'Pipes in the wall',5,5.0);
-INSERT INTO `Fact_Task` VALUES (31,'Electric conduits in the wall',1,5.0);
-INSERT INTO `Fact_Task` VALUES (32,'Electric conduits in the wall',2,5.0);
-INSERT INTO `Fact_Task` VALUES (33,'Electric conduits in the wall',3,5.0);
-INSERT INTO `Fact_Task` VALUES (34,'Electric conduits in the wall',4,5.0);
-INSERT INTO `Fact_Task` VALUES (35,'Electric conduits in the wall',5,5.0);
-INSERT INTO `Fact_Task` VALUES (36,'Partition phase 2',1,5.0);
-INSERT INTO `Fact_Task` VALUES (37,'Partition phase 2',2,5.0);
-INSERT INTO `Fact_Task` VALUES (38,'Partition phase 2',3,5.0);
-INSERT INTO `Fact_Task` VALUES (39,'Partition phase 2',4,5.0);
-INSERT INTO `Fact_Task` VALUES (40,'Partition phase 2',5,5.0);
-INSERT INTO `Fact_Task` VALUES (41,'Wall tiling',1,5.0);
-INSERT INTO `Fact_Task` VALUES (42,'Wall tiling',2,5.0);
-INSERT INTO `Fact_Task` VALUES (43,'Wall tiling',3,5.0);
-INSERT INTO `Fact_Task` VALUES (44,'Wall tiling',4,5.0);
-INSERT INTO `Fact_Task` VALUES (45,'Wall tiling',5,5.0);
+INSERT INTO `Fact_Task` (TaskID, WorkMethod, Floor, InitialQty) SELECT * FROM (
+  SELECT
+    1,
+    'Gravel base layer',
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    2,
+    'Gravel base layer',
+    2,
+    5.0
+  UNION ALL
+  SELECT
+    3,
+    'Gravel base layer',
+    3,
+    5.0
+  UNION ALL
+  SELECT
+    4,
+    'Gravel base layer',
+    4,
+    5.0
+  UNION ALL
+  SELECT
+    5,
+    'Gravel base layer',
+    5,
+    5.0
+  UNION ALL
+  SELECT
+    6,
+    'Pipes in the floor',
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    7,
+    'Pipes in the floor',
+    2,
+    5.0
+  UNION ALL
+  SELECT
+    8,
+    'Pipes in the floor',
+    3,
+    5.0
+  UNION ALL
+  SELECT
+    9,
+    'Pipes in the floor',
+    4,
+    5.0
+  UNION ALL
+  SELECT
+    10,
+    'Pipes in the floor',
+    5,
+    5.0
+  UNION ALL
+  SELECT
+    11,
+    'Electric conduits in the floor',
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    12,
+    'Electric conduits in the floor',
+    2,
+    5.0
+  UNION ALL
+  SELECT
+    13,
+    'Electric conduits in the floor',
+    3,
+    5.0
+  UNION ALL
+  SELECT
+    14,
+    'Electric conduits in the floor',
+    4,
+    5.0
+  UNION ALL
+  SELECT
+    15,
+    'Electric conduits in the floor',
+    5,
+    5.0
+  UNION ALL
+  SELECT
+    16,
+    'Floor tiling',
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    17,
+    'Floor tiling',
+    2,
+    5.0
+  UNION ALL
+  SELECT
+    18,
+    'Floor tiling',
+    3,
+    5.0
+  UNION ALL
+  SELECT
+    19,
+    'Floor tiling',
+    4,
+    5.0
+  UNION ALL
+  SELECT
+    20,
+    'Floor tiling',
+    5,
+    5.0
+  UNION ALL
+  SELECT
+    21,
+    'Partition phase 1',
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    22,
+    'Partition phase 1',
+    2,
+    5.0
+  UNION ALL
+  SELECT
+    23,
+    'Partition phase 1',
+    3,
+    5.0
+  UNION ALL
+  SELECT
+    24,
+    'Partition phase 1',
+    4,
+    5.0
+  UNION ALL
+  SELECT
+    25,
+    'Partition phase 1',
+    5,
+    5.0
+  UNION ALL
+  SELECT
+    26,
+    'Pipes in the wall',
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    27,
+    'Pipes in the wall',
+    2,
+    5.0
+  UNION ALL
+  SELECT
+    28,
+    'Pipes in the wall',
+    3,
+    5.0
+  UNION ALL
+  SELECT
+    29,
+    'Pipes in the wall',
+    4,
+    5.0
+  UNION ALL
+  SELECT
+    30,
+    'Pipes in the wall',
+    5,
+    5.0
+  UNION ALL
+  SELECT
+    31,
+    'Electric conduits in the wall',
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    32,
+    'Electric conduits in the wall',
+    2,
+    5.0
+  UNION ALL
+  SELECT
+    33,
+    'Electric conduits in the wall',
+    3,
+    5.0
+  UNION ALL
+  SELECT
+    34,
+    'Electric conduits in the wall',
+    4,
+    5.0
+  UNION ALL
+  SELECT
+    35,
+    'Electric conduits in the wall',
+    5,
+    5.0
+  UNION ALL
+  SELECT
+    36,
+    'Partition phase 2',
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    37,
+    'Partition phase 2',
+    2,
+    5.0
+  UNION ALL
+  SELECT
+    38,
+    'Partition phase 2',
+    3,
+    5.0
+  UNION ALL
+  SELECT
+    39,
+    'Partition phase 2',
+    4,
+    5.0
+  UNION ALL
+  SELECT
+    40,
+    'Partition phase 2',
+    5,
+    5.0
+  UNION ALL
+  SELECT
+    41,
+    'Wall tiling',
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    42,
+    'Wall tiling',
+    2,
+    5.0
+  UNION ALL
+  SELECT
+    43,
+    'Wall tiling',
+    3,
+    5.0
+  UNION ALL
+  SELECT
+    44,
+    'Wall tiling',
+    4,
+    5.0
+  UNION ALL
+  SELECT
+    45,
+    'Wall tiling',
+    5,
+    5.0
+);
 
 DROP TABLE IF EXISTS "Log_WorkSpacePriority";
 CREATE TABLE IF NOT EXISTS "Log_WorkSpacePriority" (
