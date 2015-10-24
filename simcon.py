@@ -134,29 +134,29 @@ class Project:
             name="Log_WorkSpacePriority", con=self.engine, if_exists='append', index=False)
 
     def work(self, day):
-        wps = pd.DataFrame()
+        assign = pd.DataFrame()
         if self.task_selection_function == 0:
-            wps = pd.read_sql_query("SELECT * FROM View_TaskSelectedRandom WHERE ProjectID=" + str(self.id),
+            assign = pd.read_sql_query("SELECT * FROM View_TaskSelectedRandom WHERE ProjectID=" + str(self.id),
                                     self.engine)
         else:
-            wps = pd.read_sql_query("SELECT * FROM View_TaskSelected WHERE ProjectID=" + str(self.id),
+            assign = pd.read_sql_query("SELECT * FROM View_TaskSelected WHERE ProjectID=" + str(self.id),
                                     self.engine)
-        wps['Day'] = day
+        assign['Day'] = day
+
+        # check the true completeness of predecessor
+        backlog = pd.read_sql_query(
+            "SELECT TaskID,ProjectID FROM True_TaskBacklog WHERE ProjectID=" + str(self.id),
+            self.engine)
+        workable = assign.merge(backlog, on=['TaskID', 'ProjectID'], how='inner').reset_index(drop=True)
 
         # production rate change
         if self.production_rate_change > 0:
             rates = list()
-            for i in xrange(len(wps['TaskID'])):
-                rate = max(self.norm_random(wps['ProductionRate'][i], wps['PerformanceStd'][i]), 0)
+            for i in xrange(len(workable['TaskID'])):
+                rate = max(self.norm_random(workable['ProductionRate'][i], workable['PerformanceStd'][i]), 0)
                 rates.append(rate)
-            wps['ProductionRate'] = rates
-            self.log_production_rate(wps)
-
-        # check the maturity
-        backlog = pd.read_sql_query(
-            "SELECT TaskID,ProjectID FROM True_TaskBacklog WHERE ProjectID=" + str(self.id),
-            self.engine)
-        workable = wps.merge(backlog, on=['TaskID', 'ProjectID'], how='inner').reset_index(drop=True)
+            workable['ProductionRate'] = rates
+            self.log_production_rate(workable)
 
         # mark the beginning day of work packages
         workable[(workable.RemainingQty == workable.TotalQty) & (workable.ProductionRate > 0)][
