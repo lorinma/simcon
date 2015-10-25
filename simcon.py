@@ -112,7 +112,7 @@ class Simulation:
         workable = assign.merge(backlog, on=['TaskID', 'ProjectID'], how='inner').reset_index(drop=True)
 
         # one floor can only allow one sub working there
-        workable = workable.sort_values(['ProjectID', 'Floor', 'Ran'], ascending=[1, 1, 1])
+        workable = workable.sort_values(['ProjectID', 'Floor', 'TaskCompleteness', 'Ran'], ascending=[1, 1, 0, 0])
         workable = workable[workable.groupby(['ProjectID', 'Floor']).cumcount() == 0].reset_index(drop=True)
 
         # production rate change
@@ -273,7 +273,7 @@ class Simulation:
             drop=True)
 
         # only one work is allowed in one floor
-        assign = assign.sort_values(['ProjectID', 'KnowledgeOwner', 'Floor', 'Ran'], ascending=[1, 1, 1, 0])
+        assign = assign.sort_values(['ProjectID', 'KnowledgeOwner', 'Floor', 'TaskCompleteness', 'Ran'], ascending=[1, 1, 1, 0, 0])
         assign = assign[assign.groupby(['ProjectID', 'KnowledgeOwner', 'Floor']).cumcount() == 0].reset_index(
             drop=True)
 
@@ -314,8 +314,8 @@ class Simulation:
 
     def export(self, filename):
 
-        # result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
-        result = pd.read_sql_query("SELECT * FROM True_TaskTrace", self.engine)
+        result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
+        # result = pd.read_sql_query("SELECT * FROM True_TaskTrace", self.engine)
         result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
         # result[['WPName', 'Date', 'Day', 'StatusFiltered', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
         #         'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'ProjectID', 'TaskID']].to_csv(
@@ -327,7 +327,7 @@ class Simulation:
         #     filename, sep='\t', encoding='utf-8',
         #     index=False)
 
-        result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'ProjectID', 'TaskID']].to_csv(
+        result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'ProjectID', 'TaskID','NotMature','DesignChange']].to_csv(
             filename, sep='\t', encoding='utf-8',
             index=False)
         print "result exported to", filename
@@ -335,5 +335,5 @@ class Simulation:
 
 if __name__ == '__main__':
     game = Simulation()
-    # game.run()
+    game.run()
     game.export("result.csv")

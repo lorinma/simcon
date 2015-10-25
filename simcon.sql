@@ -1,4 +1,4 @@
-
+SELECT * FROM Log_ProductionRate WHERE ProductionRate=0
 BEGIN TRANSACTION;
 
 DROP TABLE IF EXISTS "Fact_Project";
@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS "Fact_Project" (
 INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
                             DesignChangeVariation,ProductionRateChange,
                             QualityCheck,TaskSelectionFunction) SELECT * FROM (
---     SELECT 0,10,1.0,1,1,1
---     UNION ALL
---     SELECT 10,10,1.0,1,1,1
---     UNION ALL
+    SELECT 1,10,1.0,1.0,0,1
+    UNION ALL
+    SELECT 10,10,1.0,1.0,0,1
+    UNION ALL
     SELECT 0,10,1.0,1.0,0,1
   --   UNION ALL
   --   SELECT 7,9,1.0,1,1,1
@@ -156,63 +156,63 @@ INSERT INTO `Fact_WorkMethod` (SubName, WorkMethod, InitialProductionRate, Quali
   SELECT
     'Gravel',
     'Gravel base layer',
-    4.0,
+    2.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Plumbing',
     'Pipes in the floor',
-    4.0,
+    2.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Electricity',
     'Electric conduits in the floor',
-    4.0,
+    2.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Tiling',
     'Floor tiling',
-    4.0,
+    2.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Partition',
     'Partition phase 1',
-    4.0,
+    2.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Plumbing',
     'Pipes in the wall',
-    4.0,
+    2.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Electricity',
     'Electric conduits in the wall',
-    4.0,
+    2.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Partition',
     'Partition phase 2',
-    4.0,
+    2.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Tiling',
     'Wall tiling',
-    4.0,
+    2.0,
     1.0,
     0.3
 );
@@ -834,15 +834,19 @@ SELECT True_TaskLatest.*, 1- sum(RemainingQty)/sum(TotalQty) WorkMethodCompleten
 
 DROP VIEW IF EXISTS View_SubWorking;
 CREATE VIEW IF NOT EXISTS View_SubWorking as
-SELECT ProjectID,KnowledgeOwner,Day,Fact_TaskDetail.*
-  FROM Log_Task
+SELECT View_TaskLatest.ProjectID,KnowledgeOwner,Day,Fact_TaskDetail.*
+  FROM View_TaskLatest
     LEFT JOIN Fact_TaskDetail
-    ON Log_Task.TaskID=Fact_TaskDetail.TaskID
-       WHERE Day = (
-         SELECT max(Day)
-         FROM Log_Task
-         GROUP BY ProjectID
-       ) AND RemainingQty>0 AND Day>0;
+    ON View_TaskLatest.TaskID=Fact_TaskDetail.TaskID
+    INNER JOIN (
+      SELECT ProjectID, max(Day) mDay
+      FROM View_TaskLatest
+      GROUP BY ProjectID
+      )mDay
+    ON View_TaskLatest.ProjectID=mDay.ProjectID AND View_TaskLatest.Day=mDay.mDay
+WHERE RemainingQty>0 AND RemainingQty<View_TaskLatest.TotalQty AND Day>0
+ORDER BY View_TaskLatest.ProjectID, KnowledgeOwner, SubName;
+
 
 DROP VIEW IF EXISTS True_SubWorking;
 CREATE VIEW IF NOT EXISTS True_SubWorking as
@@ -1016,8 +1020,6 @@ WHERE ProjectCompleteness<1;
 DROP VIEW IF EXISTS True_TaskTrace;
 CREATE VIEW IF NOT EXISTS True_TaskTrace as
 SELECT Floor||'-'||WorkMethod WPName, Day, Status, SubName, Floor, WorkMethod, TaskID, ProjectID
--- Fact_TaskDetail.Floor||'-'||Fact_TaskDetail.WorkMethod WPName,Activity.Day Day, ifnull(Fact_TaskDetail.Floor-1+TaskCompleteness,Fact_TaskDetail.Floor-1) Status,
---   Fact_TaskDetail.SubName,Fact_TaskDetail.Floor, Fact_TaskDetail.WorkMethod, Activity.TaskID TaskID,Activity.ProjectID,
 --   ifnull(abs(Pass-1),0) QualityFail,ProductionRate, CASE WHEN (ProductionRate=0) THEN 1 ELSE 0 END LowProductivity,
 --   ifnull(Retrace,0) Retrace, CASE WHEN (Event_DesignChange.Day IS NOT NULL ) THEN 1 ELSE 0 END DesignChange,
 --   CASE WHEN (Event_Meeting.Day IS NOT NULL ) THEN 1 ELSE 0 END Meeting,ifnull(Collision,1) Collision
@@ -1052,8 +1054,35 @@ FROM Event_WorkBegin
     ON Fact_TaskDetail.TaskID = Event_WorkBegin.TaskID
   )
   GROUP BY ProjectID, TaskID, Day
+-- ORDER BY ProjectID, TaskID, Day;
 ORDER BY ProjectID, Day, TaskID;
 
+DROP VIEW IF EXISTS _Result;
+CREATE VIEW IF NOT EXISTS _Result as
+SELECT *
+FROM (
+  SELECT Floor||'-'||WorkMethod WPName, Day, Floor-1 Status, SubName, Floor, WorkMethod, Event_Retrace.TaskID, ProjectID, 1 NotMature, NULL DesignChange
+  FROM Event_Retrace
+  LEFT JOIN Fact_TaskDetail
+  ON Event_Retrace.TaskID=Fact_TaskDetail.TaskID
+  UNION
+  SELECT *, 0 NotMature, 0 DesignChange
+  FROM True_TaskTrace
+  UNION
+  SELECT Floor||'-'||WorkMethod WPName, Day, Floor-1 Status, SubName, Floor, WorkMethod, Event_DesignChange.TaskID, ProjectID, NULL NotMature, 1 DesignChange
+  FROM Event_DesignChange
+  LEFT JOIN Fact_TaskDetail
+  ON Event_DesignChange.TaskID=Fact_TaskDetail.TaskID
+);
+
+SELECT *
+FROM Event_DesignChange
+LEFT JOIN Fact_TaskDetail
+ON Event_DesignChange.TaskID=Fact_TaskDetail.TaskID;
+
+SELECT *
+FROM _Result
+order by ProjectID,Day;
 -- UNION
 -- SELECT *
 --   FROM Log_Task;
