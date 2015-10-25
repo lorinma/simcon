@@ -46,7 +46,6 @@ class Simulation:
         self.engine.execute(project.update().where(project.c.Done == 0).values(Done=1))
 
     def all_done(self):
-        project_ids = list()
         project_ids = pd.read_sql_query(
             "SELECT ProjectID FROM True_ProjectCompleteness WHERE True_ProjectCompleteness.ProjectCompleteness<1",
             self.engine)['ProjectID'].tolist()
@@ -56,7 +55,7 @@ class Simulation:
             return True
 
     def a_day(self, day):
-        self.meet_all(day - 1)
+        self.meet_all(day)
 
         # who goes where and tries working on what
         confirmed = self.work(day)
@@ -67,31 +66,29 @@ class Simulation:
         self.infer(day, confirmed)
 
     def meet_all(self, day):
-        if day == 0:
-            return 0;
         projects = pd.read_sql_query(
             "SELECT ID as ProjectID FROM Fact_Project WHERE MeetingCycle<>0 AND " + str(day) + " % MeetingCycle =0",
             self.engine)
-        if len(projects.ProjectID)==0:
+        if len(projects.ProjectID) == 0:
             return 0
         # information about task progress
         sync_task = pd.read_sql_query("SELECT * FROM Sync_Task", self.engine)
         sync_task = sync_task.merge(projects, how='inner', on=['ProjectID']).reset_index(drop=True)
-        sync_task['Day'] = day
+        sync_task['Day'] = day - 1
         self.log_wp(sync_task)
 
         # information about production rate
         sync_production_rate = pd.read_sql_query("SELECT * FROM Sync_ProductionRate", self.engine)
         sync_production_rate = sync_production_rate.merge(projects, how='inner', on=['ProjectID']).reset_index(
             drop=True)
-        sync_production_rate['Day'] = day
+        sync_production_rate['Day'] = day - 1
         self.log_production_rate(sync_production_rate)
 
         # information about workspace priority
         sync_workspace_priority = pd.read_sql_query("SELECT * FROM Sync_WorkSpacePriority", self.engine)
         sync_workspace_priority = sync_workspace_priority.merge(projects, how='inner', on=['ProjectID']).reset_index(
             drop=True)
-        sync_workspace_priority['Day'] = day
+        sync_workspace_priority['Day'] = day - 1
         self.log_priority_space(sync_workspace_priority)
 
     def log_wp(self, data):
@@ -114,7 +111,7 @@ class Simulation:
         backlog = pd.read_sql_query("SELECT TaskID,ProjectID FROM True_TaskBacklog", self.engine)
         workable = assign.merge(backlog, on=['TaskID', 'ProjectID'], how='inner').reset_index(drop=True)
 
-        # one floor can only alow one sub working there
+        # one floor can only allow one sub working there
         workable = workable.sort_values(['ProjectID', 'Floor', 'Ran'], ascending=[1, 1, 1])
         workable = workable[workable.groupby(['ProjectID', 'Floor']).cumcount() == 0].reset_index(drop=True)
 
@@ -203,21 +200,27 @@ class Simulation:
     #     self.log_wp(rework)
 
     def design_change(self, day):
-        if day == 1:
-            return 0;
         projects = pd.read_sql_query(
             "SELECT ID as ProjectID FROM Fact_Project WHERE Fact_Project.DesignChangeCycle<>0 AND " + str(
-                day - 1) + " % MeetingCycle =0",
+                day) + " % DesignChangeCycle=0",
             self.engine)
+        if len(projects.ProjectID) == 0:
+            return 0
 
-        project_completeness = pd.read_sql_query("SELECT * FROM True_ProjectCompleteness", self.engine)
+        project_completeness = pd.read_sql_query("SELECT * FROM True_ProjectCompleteness WHERE ProjectCompleteness<1",
+                                                 self.engine)
         projects = projects.merge(project_completeness, how='inner', on=['ProjectID']).reset_index(drop=True)
+        if len(projects.ProjectID) == 0:
+            return 0
 
+        good = list()
         # if most of the work in the project has been completed, then the design will not be changed
         for i in xrange(len(projects["ProjectID"])):
-            good = np.random.binomial(1, projects['ProjectCompleteness'][i], 1)[0]
+            good.append(np.random.binomial(1, projects['ProjectCompleteness'][i], 1)[0])
         projects['Good'] = good
         projects = projects[projects.Good == 0].reset_index(drop=True)
+        if len(projects.ProjectID) == 0:
+            return 0
 
         candidate = pd.read_sql_query("SELECT * FROM True_DesignChangeRandom", self.engine)
         change = candidate.merge(projects[['ProjectID']], on=['ProjectID'], how='inner').reset_index(drop=True)
@@ -227,12 +230,14 @@ class Simulation:
         # if the work package has not been started, then just update the status in the initial state
         # and don't change the date to today in log_wp
         change.loc[change.RemainingQty < change.TotalQty, 'Day'] = day
+        qties = list()
         for i in xrange(len(change['TaskID'])):
             qty = 0
             while not qty > 0:
                 qty = self.norm_random(change['TotalQty'][i], change['DesignChangeVariation'][i])
-            change['TotalQty'][i] = qty
-            change['RemainingQty'][i] = qty
+            qties.append(qty)
+        change['TotalQty'] = qties
+        change['RemainingQty'] = qties
         self.log_wp(change)
 
         # always mark the day when it is changed in design change log
@@ -308,22 +313,27 @@ class Simulation:
     #         self.log_priority_space(subs_status[subs_status.KnowledgeOwner != subs_status.SubName])
 
     def export(self, filename):
-        result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
+
+        # result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
+        result = pd.read_sql_query("SELECT * FROM True_TaskTrace", self.engine)
         result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
         # result[['WPName', 'Date', 'Day', 'StatusFiltered', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
         #         'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'ProjectID', 'TaskID']].to_csv(
         #     filename, sep='\t', encoding='utf-8',
         #     index=False)
-        result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
-                'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'Collision', 'ProductionRate', 'ProjectID',
-                'TaskID']].to_csv(
+        # result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
+        #         'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'Collision', 'ProductionRate', 'ProjectID',
+        #         'TaskID']].to_csv(
+        #     filename, sep='\t', encoding='utf-8',
+        #     index=False)
+
+        result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'ProjectID', 'TaskID']].to_csv(
             filename, sep='\t', encoding='utf-8',
             index=False)
-
         print "result exported to", filename
 
 
 if __name__ == '__main__':
     game = Simulation()
-    game.run()
-    # game.export("result.csv")
+    # game.run()
+    game.export("result.csv")

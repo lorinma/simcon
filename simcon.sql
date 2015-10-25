@@ -1,3 +1,4 @@
+
 BEGIN TRANSACTION;
 
 DROP TABLE IF EXISTS "Fact_Project";
@@ -19,7 +20,7 @@ INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
 --     UNION ALL
 --     SELECT 10,10,1.0,1,1,1
 --     UNION ALL
-    SELECT 1,1,1.0,1,1,1
+    SELECT 0,10,1.0,1.0,0,1
   --   UNION ALL
   --   SELECT 7,9,1.0,1,1,1
   --   UNION ALL
@@ -155,63 +156,63 @@ INSERT INTO `Fact_WorkMethod` (SubName, WorkMethod, InitialProductionRate, Quali
   SELECT
     'Gravel',
     'Gravel base layer',
-    1.0,
+    4.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Plumbing',
     'Pipes in the floor',
-    1.0,
+    4.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Electricity',
     'Electric conduits in the floor',
-    1.0,
+    4.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Tiling',
     'Floor tiling',
-    1.0,
+    4.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Partition',
     'Partition phase 1',
-    1.0,
+    4.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Plumbing',
     'Pipes in the wall',
-    1.0,
+    4.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Electricity',
     'Electric conduits in the wall',
-    1.0,
+    4.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Partition',
     'Partition phase 2',
-    1.0,
+    4.0,
     1.0,
     0.3
   UNION ALL
   SELECT
     'Tiling',
     'Wall tiling',
-    1.0,
+    4.0,
     1.0,
     0.3
 );
@@ -985,15 +986,77 @@ FROM (
 	WHERE (View_SubWorking2.Floor=FreeTask.Floor AND View_SubWorking1.SubName=FreeTask.SubName) OR
 				(View_SubWorking2.Floor IS NULL AND View_SubWorking1.SubName IS NULL);
 
--- DROP VIEW IF EXISTS True_TaskTrace;
--- CREATE VIEW IF NOT EXISTS True_TaskTrace as
--- SELECT Log_Task.*,KnowledgeOwner SubName,Floor,WorkMethod
--- FROM Log_Task
--- LEFT JOIN Fact_TaskDetail
---   ON Log_Task.TaskID=Fact_TaskDetail.TaskID
--- WHERE Log_Task.KnowledgeOwner=Log_Task.SubName
--- GROUP BY Day,Log_Task.TaskID, ProjectID;
---
+DROP VIEW IF EXISTS True_DesignChangeRandom;
+CREATE VIEW IF NOT EXISTS True_DesignChangeRandom as
+  SELECT Change.*,Fact_Project.DesignChangeVariation
+  FROM (
+    SELECT *
+    FROM (
+      SELECT
+        *,
+        random() % 1000 Ran
+      FROM True_TaskLatest
+      WHERE True_TaskLatest.RemainingQty > 0
+      ORDER BY True_TaskLatest.ProjectID, Ran
+    )
+    GROUP BY ProjectID
+  )Change
+  LEFT JOIN Fact_Project
+  ON Change.ProjectID=Fact_Project.ID;
+
+DROP VIEW IF EXISTS True_TaskLatestRandomFloor;
+CREATE VIEW IF NOT EXISTS True_TaskLatestRandomFloor AS
+SELECT True_TaskLatest.*
+FROM True_ProjectCompleteness
+  LEFT JOIN True_TaskLatest
+  ON True_TaskLatest.ProjectID=True_ProjectCompleteness.ProjectID AND
+      True_TaskLatest.Floor=abs(random()% (SELECT max(Floor) FROM Fact_WorkSpace))+1
+WHERE ProjectCompleteness<1;
+
+DROP VIEW IF EXISTS True_TaskTrace;
+CREATE VIEW IF NOT EXISTS True_TaskTrace as
+SELECT Floor||'-'||WorkMethod WPName, Day, Status, SubName, Floor, WorkMethod, TaskID, ProjectID
+-- Fact_TaskDetail.Floor||'-'||Fact_TaskDetail.WorkMethod WPName,Activity.Day Day, ifnull(Fact_TaskDetail.Floor-1+TaskCompleteness,Fact_TaskDetail.Floor-1) Status,
+--   Fact_TaskDetail.SubName,Fact_TaskDetail.Floor, Fact_TaskDetail.WorkMethod, Activity.TaskID TaskID,Activity.ProjectID,
+--   ifnull(abs(Pass-1),0) QualityFail,ProductionRate, CASE WHEN (ProductionRate=0) THEN 1 ELSE 0 END LowProductivity,
+--   ifnull(Retrace,0) Retrace, CASE WHEN (Event_DesignChange.Day IS NOT NULL ) THEN 1 ELSE 0 END DesignChange,
+--   CASE WHEN (Event_Meeting.Day IS NOT NULL ) THEN 1 ELSE 0 END Meeting,ifnull(Collision,1) Collision
+-- --   , CASE WHEN Event_DesignChange.Day IS NOT NULL THEN NULL ELSE Floor-1+TaskCompleteness END StatusFiltered
+FROM
+  (
+    SELECT
+      ProjectID,
+      Fact_TaskDetail.TaskID,
+      Day,
+      SubName,
+      Floor,
+      WorkMethod,
+      1 - RemainingQty / TotalQty     Completeness,
+      Floor - RemainingQty / TotalQty Status
+    FROM Log_Task
+      LEFT JOIN Fact_TaskDetail
+        ON Log_Task.TaskID = Fact_TaskDetail.TaskID
+    WHERE Log_Task.KnowledgeOwner = Fact_TaskDetail.SubName AND Day > 0
+UNION
+SELECT
+  ProjectID,
+  Fact_TaskDetail.TaskID,
+  Day - 1   Day,
+  SubName,
+  Floor,
+  WorkMethod,
+  0         Completeness,
+  Floor - 1 Status
+FROM Event_WorkBegin
+  LEFT JOIN Fact_TaskDetail
+    ON Fact_TaskDetail.TaskID = Event_WorkBegin.TaskID
+  )
+  GROUP BY ProjectID, TaskID, Day
+ORDER BY ProjectID, Day, TaskID;
+
+-- UNION
+-- SELECT *
+--   FROM Log_Task;
 -- DROP VIEW IF EXISTS View_SubAppearanceLatest;
 -- CREATE VIEW IF NOT EXISTS View_SubAppearanceLatest as
 -- SELECT ProjectID, KnowledgeOwner, SubName,Floor
@@ -1055,33 +1118,6 @@ FROM (
 --       Fact_Project.ID=Passed.ProjectID
 -- WHERE Passed.TaskID ISNULL;
 --
-DROP VIEW IF EXISTS True_DesignChangeRandom;
-CREATE VIEW IF NOT EXISTS True_DesignChangeRandom as
-  SELECT Change.*,Fact_Project.DesignChangeVariation
-  FROM (
-    SELECT *
-    FROM (
-      SELECT
-        *,
-        random() % 1000 Ran
-      FROM True_TaskLatest
-      WHERE True_TaskLatest.RemainingQty > 0
-      ORDER BY True_TaskLatest.ProjectID, Ran
-    )
-    GROUP BY ProjectID
-  )Change
-  LEFT JOIN Fact_Project
-  ON Change.ProjectID=Fact_Project.ID;
-
-DROP VIEW IF EXISTS True_TaskLatestRandomFloor;
-CREATE VIEW IF NOT EXISTS True_TaskLatestRandomFloor AS
-SELECT True_TaskLatest.*
-FROM True_ProjectCompleteness
-  LEFT JOIN True_TaskLatest
-  ON True_TaskLatest.ProjectID=True_ProjectCompleteness.ProjectID AND
-      True_TaskLatest.Floor=abs(random()% (SELECT max(Floor) FROM Fact_WorkSpace))+1
-WHERE ProjectCompleteness<1;
-
 --
 -- DROP VIEW IF EXISTS True_TaskFinishedQualityUncheck;
 -- CREATE VIEW IF NOT EXISTS True_TaskFinishedQualityUncheck AS
@@ -1109,14 +1145,7 @@ WHERE ProjectCompleteness<1;
 --   SELECT True_SubAppearance.ProjectID ProjectID,True_SubAppearance.TaskID TaskID,
 --          True_SubAppearance.Day Day,1-RemainingQty/TotalQty TaskCompleteness,Retrace
 --   FROM True_SubAppearance
---     LEFT JOIN (
---                 SELECT Log_Task.ProjectID,Log_Task.TaskID,RemainingQty,Day,TotalQty,Floor
---                 FROM Log_Task
---                   LEFT JOIN Fact_TaskDetail
---                     ON Log_Task.TaskID=Fact_TaskDetail.TaskID
---                 WHERE KnowledgeOwner=SubName AND Day>0
---                 GROUP BY ProjectID,Log_Task.TaskID,Day
---               )Work
+--     LEFT JOIN True_TaskTrace
 --       ON True_SubAppearance.ProjectID=Work.ProjectID AND
 --          True_SubAppearance.TaskID=Work.TaskID AND
 --          True_SubAppearance.Day=Work.Day
