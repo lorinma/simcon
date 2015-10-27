@@ -106,28 +106,51 @@ class Simulation:
     def work(self, day):
         assign = pd.read_sql_query("SELECT * FROM View_TaskSelected", self.engine)
         assign['Day'] = day
+        self.log_wp(assign)
 
         # check the true completeness of predecessor
         backlog = pd.read_sql_query("SELECT TaskID,ProjectID FROM True_TaskBacklog", self.engine)
-        workable = assign.merge(backlog, on=['TaskID', 'ProjectID'], how='inner').reset_index(drop=True)
+        backlog['Chosen'] = 1
+        pre_complete = assign.merge(backlog, on=['TaskID', 'ProjectID'], how='left').reset_index(drop=True)
+        retrace_pre = pre_complete[pre_complete.Chosen.isnull()].reset_index(drop=True)
+        retrace_pre[['ProjectID', 'TaskID', 'Day']].to_sql(name="Event_RetracePredecessor", con=self.engine,
+                                                           if_exists='append',
+                                                           index=False)
+        pre_complete = pre_complete[pre_complete.Chosen == 1].reset_index(drop=True)
 
         # one floor can only allow one sub working there
-        workable = workable.sort_values(['ProjectID', 'Floor', 'TaskCompleteness', 'Ran'], ascending=[1, 1, 0, 0])
-        workable = workable[workable.groupby(['ProjectID', 'Floor']).cumcount() == 0].reset_index(drop=True)
-
+        space_complete = pre_complete.sort_values(['ProjectID', 'Floor', 'TaskCompleteness', 'Ran'],
+                                                  ascending=[1, 1, 0, 0])
+        space_complete = space_complete[space_complete.groupby(['ProjectID', 'Floor']).cumcount() == 0].reset_index(
+            drop=True)
+        retrace_space = pre_complete[['ProjectID', 'TaskID', 'Day']].merge(
+            space_complete[['ProjectID', 'TaskID', 'Chosen']], how='left',
+            on=['ProjectID', 'TaskID'])
+        retrace_space = retrace_space[retrace_space.Chosen.isnull()].reset_index(drop=True)
+        retrace_space[['ProjectID', 'TaskID', 'Day']].to_sql(name="Event_RetraceWorkSpace", con=self.engine,
+                                                             if_exists='append',
+                                                             index=False)
         # production rate change
         rates = list()
-        for i in xrange(len(workable['TaskID'])):
-            if workable['ProductionRateChange'][i] > 0:
-                rate = max(self.norm_random(workable['ProductionRate'][i], workable['PerformanceStd'][i]), 0)
+        for i in xrange(len(space_complete['TaskID'])):
+            if space_complete['ProductionRateChange'][i] > 0:
+                rate = max(self.norm_random(space_complete['ProductionRate'][i], space_complete['PerformanceStd'][i]),
+                           0)
                 rates.append(rate)
             else:
-                rates.append(workable['ProductionRate'][i])
-        workable['ProductionRate'] = rates
-        self.log_production_rate(workable)
-
+                rates.append(space_complete['ProductionRate'][i])
+        space_complete['ProductionRate'] = rates
+        self.log_production_rate(space_complete)
         # external condition un-mature
-        workable = workable[workable.ProductionRate > 0].reset_index(drop=True)
+        workable = space_complete[space_complete.ProductionRate > 0].reset_index(drop=True)
+
+        retrace_external = space_complete[['ProjectID', 'TaskID', 'Day']].merge(
+            workable[['ProjectID', 'TaskID', 'Chosen']], how='left',
+            on=['ProjectID', 'TaskID'])
+        retrace_external = retrace_external[retrace_external.Chosen.isnull()].reset_index(drop=True)
+        retrace_external[['ProjectID', 'TaskID', 'Day']].to_sql(name="Event_RetraceExternalCondition", con=self.engine,
+                                                                if_exists='append',
+                                                                index=False)
 
         # mark the beginning day of work packages
         workable[(workable.RemainingQty == workable.TotalQty)][['ProjectID', 'TaskID', 'Day']].to_sql(
@@ -139,10 +162,8 @@ class Simulation:
         self.log_wp(workable)
 
         # upload retrace
-        workable['Chosen'] = 1;
         assign = assign.merge(workable[['ProjectID', 'TaskID', 'Chosen']], how='left', on=['ProjectID', 'TaskID'])
         retrace = assign[assign.Chosen.isnull()].reset_index(drop=True)
-        # retrace = assign[~assign.TaskID.isin(workable.TaskID)].reset_index(drop=True)
         retrace[['ProjectID', 'TaskID', 'Day']].to_sql(name="Event_Retrace", con=self.engine, if_exists='append',
                                                        index=False)
 
@@ -273,7 +294,8 @@ class Simulation:
             drop=True)
 
         # only one work is allowed in one floor
-        assign = assign.sort_values(['ProjectID', 'KnowledgeOwner', 'Floor', 'TaskCompleteness', 'Ran'], ascending=[1, 1, 1, 0, 0])
+        assign = assign.sort_values(['ProjectID', 'KnowledgeOwner', 'Floor', 'TaskCompleteness', 'Ran'],
+                                    ascending=[1, 1, 1, 0, 0])
         assign = assign[assign.groupby(['ProjectID', 'KnowledgeOwner', 'Floor']).cumcount() == 0].reset_index(
             drop=True)
 
@@ -315,7 +337,6 @@ class Simulation:
     def export(self, filename):
 
         result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
-        # result = pd.read_sql_query("SELECT * FROM True_TaskTrace", self.engine)
         result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
         # result[['WPName', 'Date', 'Day', 'StatusFiltered', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
         #         'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'ProjectID', 'TaskID']].to_csv(
@@ -327,7 +348,8 @@ class Simulation:
         #     filename, sep='\t', encoding='utf-8',
         #     index=False)
 
-        result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'ProjectID', 'TaskID','NotMature','DesignChange']].to_csv(
+        result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'ProjectID', 'TaskID', 'NotMature',
+                'DesignChange', 'PredecessorIncomplete', 'WorkSpaceCongestion', 'ExternalCondition']].to_csv(
             filename, sep='\t', encoding='utf-8',
             index=False)
         print "result exported to", filename
