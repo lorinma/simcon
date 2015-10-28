@@ -121,6 +121,13 @@ INSERT INTO `Fact_WorkMethod` (SubName, WorkMethod, InitialProductionRate, Quali
     0.3
   UNION ALL
   SELECT
+    'Partition',
+    'Partition phase 2',
+    1.0,
+    1.0,
+    0.3
+  UNION ALL
+  SELECT
     'Electricity',
     'Electric conduits in the wall',
     1.0,
@@ -129,7 +136,7 @@ INSERT INTO `Fact_WorkMethod` (SubName, WorkMethod, InitialProductionRate, Quali
   UNION ALL
   SELECT
     'Partition',
-    'Partition phase 2',
+    'Partition phase 3',
     1.0,
     1.0,
     0.3
@@ -171,19 +178,19 @@ INSERT INTO `Fact_WorkMethodDependency` (PredecessorWorkMethod, SuccessorWorkMet
     'Pipes in the wall'
   UNION ALL
   SELECT
-    'Partition phase 1',
-    'Electric conduits in the wall'
-  UNION ALL
-  SELECT
     'Pipes in the wall',
     'Partition phase 2'
   UNION ALL
   SELECT
-    'Electric conduits in the wall',
-    'Partition phase 2'
+    'Partition phase 2',
+    'Electric conduits in the wall'
   UNION ALL
   SELECT
-    'Partition phase 2',
+    'Electric conduits in the wall',
+    'Partition phase 3'
+  UNION ALL
+  SELECT
+    'Partition phase 3',
     'Wall tiling'
 );
 
@@ -464,6 +471,36 @@ INSERT INTO `Fact_Task` (TaskID, WorkMethod, Floor, InitialQty) SELECT * FROM (
   SELECT
     45,
     'Wall tiling',
+    5,
+    5.0
+  UNION ALL
+  SELECT
+    46,
+    'Partition phase 3',
+    1,
+    5.0
+  UNION ALL
+  SELECT
+    47,
+    'Partition phase 3',
+    2,
+    5.0
+  UNION ALL
+  SELECT
+    48,
+    'Partition phase 3',
+    3,
+    5.0
+  UNION ALL
+  SELECT
+    49,
+    'Partition phase 3',
+    4,
+    5.0
+  UNION ALL
+  SELECT
+    50,
+    'Partition phase 3',
     5,
     5.0
 );
@@ -1054,173 +1091,4 @@ FROM True_TaskTrace
     ON True_TaskTrace.ProjectID=Event_DesignChange.ProjectID AND
       True_TaskTrace.TaskID=Event_DesignChange.TaskID AND
       True_TaskTrace.Day=Event_DesignChange.Day;
-
--- UNION
--- SELECT *
---   FROM Log_Task;
--- DROP VIEW IF EXISTS View_SubAppearanceLatest;
--- CREATE VIEW IF NOT EXISTS View_SubAppearanceLatest as
--- SELECT ProjectID, KnowledgeOwner, SubName,Floor
--- FROM (
---   SELECT ProjectID,KnowledgeOwner,SubName,Day,Log_Task.TaskID, Floor
---   FROM Log_Task
---     LEFT JOIN Fact_TaskDetail
---     ON Log_Task.TaskID=Fact_TaskDetail.TaskID
---   WHERE Day>0
---   ORDER BY ProjectID, KnowledgeOwner, SubName,Day
--- ) GROUP BY ProjectID, KnowledgeOwner, SubName;
---
--- DROP VIEW IF EXISTS True_SubAppearance;
--- CREATE VIEW IF NOT EXISTS True_SubAppearance as
--- SELECT *
--- FROM (
---   SELECT SubName,Day,Floor,TaskID, ProjectID,0 Retrace
---   FROM True_TaskTrace
---   WHERE Day>0
---   UNION
---   SELECT SubName,Day,Floor,Event_Retrace.TaskID TaskID, ProjectID,1 Retrace
---   FROM Event_Retrace
---     LEFT JOIN Fact_TaskDetail
---     ON Event_Retrace.TaskID=Fact_TaskDetail.TaskID
--- ) GROUP BY SubName,Day, ProjectID;
---
--- DROP VIEW IF EXISTS True_SubCollision;
--- CREATE VIEW IF NOT EXISTS True_SubCollision as
--- SELECT True_SubAppearance.ProjectID ProjectID, True_SubAppearance.SubName SubName,True_SubAppearance.Floor Floor,True_SubAppearance.Day Day,Collision
--- FROM (
---   SELECT ProjectID,Day,Floor,Collision
---   FROM (
---     SELECT ProjectID,Day,Floor,count(SubName) Collision
---     FROM True_SubAppearance
---     GROUP BY ProjectID,Day,Floor
---   )
---   WHERE Collision>1
--- )Collision
--- LEFT JOIN True_SubAppearance
--- ON Collision.ProjectID=True_SubAppearance.ProjectID AND
---    Collision.Day=True_SubAppearance.Day AND
---    Collision.Floor=True_SubAppearance.Floor;
-
---
--- DROP VIEW IF EXISTS True_TaskQualityUncheck;
--- CREATE VIEW IF NOT EXISTS True_TaskQualityUncheck as
--- SELECT Fact_Task.TaskID,ID ProjectID
--- FROM Fact_Task JOIN Fact_Project
--- LEFT JOIN (
---     SELECT ProjectID,TaskID
---     FROM (
---       SELECT ProjectID,TaskID,Pass
---       FROM Event_QualityCheck
---       GROUP BY ProjectID,TaskID
---     )
---     WHERE Pass>0
---     )Passed
--- ON Fact_Task.TaskID=Passed.TaskID AND
---       Fact_Project.ID=Passed.ProjectID
--- WHERE Passed.TaskID ISNULL;
---
---
--- DROP VIEW IF EXISTS True_TaskFinishedQualityUncheck;
--- CREATE VIEW IF NOT EXISTS True_TaskFinishedQualityUncheck AS
---   SELECT True_TaskLatest.*,1-(1-QualityRate)*(1-WorkMethodCompleteness) QualityPassRate
---   FROM True_TaskQualityUncheck
---     LEFT JOIN True_TaskLatest
---     ON True_TaskQualityUncheck.ProjectID=True_TaskLatest.ProjectID AND
---           True_TaskQualityUncheck.TaskID=True_TaskLatest.TaskID
---     LEFT JOIN Fact_TaskDetail
---       ON True_TaskQualityUncheck.TaskID=Fact_TaskDetail.TaskID
---     LEFT JOIN True_WorkMethodCompleteness
---     ON True_TaskQualityUncheck.ProjectID=True_WorkMethodCompleteness.ProjectID
---        AND True_WorkMethodCompleteness.WorkMethod=True_WorkMethodCompleteness.WorkMethod
---     WHERE True_TaskLatest.RemainingQty=0;
---
--- DROP VIEW IF EXISTS _Result;
--- CREATE VIEW IF NOT EXISTS _Result as
--- SELECT Fact_TaskDetail.Floor||'-'||Fact_TaskDetail.WorkMethod WPName,Activity.Day Day, ifnull(Fact_TaskDetail.Floor-1+TaskCompleteness,Fact_TaskDetail.Floor-1) Status,
---   Fact_TaskDetail.SubName,Fact_TaskDetail.Floor, Fact_TaskDetail.WorkMethod, Activity.TaskID TaskID,Activity.ProjectID,
---   ifnull(abs(Pass-1),0) QualityFail,ProductionRate, CASE WHEN (ProductionRate=0) THEN 1 ELSE 0 END LowProductivity,
---   ifnull(Retrace,0) Retrace, CASE WHEN (Event_DesignChange.Day IS NOT NULL ) THEN 1 ELSE 0 END DesignChange,
---   CASE WHEN (Event_Meeting.Day IS NOT NULL ) THEN 1 ELSE 0 END Meeting,ifnull(Collision,1) Collision
--- --   , CASE WHEN Event_DesignChange.Day IS NOT NULL THEN NULL ELSE Floor-1+TaskCompleteness END StatusFiltered
--- FROM (
---   SELECT True_SubAppearance.ProjectID ProjectID,True_SubAppearance.TaskID TaskID,
---          True_SubAppearance.Day Day,1-RemainingQty/TotalQty TaskCompleteness,Retrace
---   FROM True_SubAppearance
---     LEFT JOIN True_TaskTrace
---       ON True_SubAppearance.ProjectID=Work.ProjectID AND
---          True_SubAppearance.TaskID=Work.TaskID AND
---          True_SubAppearance.Day=Work.Day
---   UNION
---   SELECT Begin.*,0 TaskCompleteness,NULL Retrace
---   FROM (
---          SELECT ProjectID,TaskID,Day-1 Day
---          FROM Event_WorkBegin
---        ) Begin
---     LEFT JOIN True_SubAppearance
---       ON Begin.ProjectID=True_SubAppearance.ProjectID AND
---          Begin.Day=True_SubAppearance.Day AND
---          Begin.TaskID=True_SubAppearance.TaskID
---   WHERE True_SubAppearance.Day ISNULL
---   )Activity
--- LEFT JOIN Event_QualityCheck
--- ON Event_QualityCheck.ProjectID=Activity.ProjectID AND
--- Event_QualityCheck.TaskID=Activity.TaskID AND
--- Event_QualityCheck.Day=Activity.Day
--- LEFT JOIN Event_Meeting
--- ON Event_Meeting.ProjectID=Activity.ProjectID AND
--- Event_Meeting.Day=Activity.Day
--- LEFT JOIN Event_DesignChange
--- ON Event_DesignChange.ProjectID=Activity.ProjectID AND
--- Event_DesignChange.TaskID=Activity.TaskID AND
--- Event_DesignChange.Day=Activity.Day
--- LEFT JOIN Fact_TaskDetail
--- ON Activity.TaskID=Fact_TaskDetail.TaskID
--- LEFT JOIN (
---     SELECT ProjectID,Log_ProductionRate.WorkMethod,ProductionRate,Day
---     FROM Log_ProductionRate
---       LEFT JOIN Fact_WorkMethod
---       ON Log_ProductionRate.WorkMethod=Fact_WorkMethod.WorkMethod
---     WHERE KnowledgeOwner=SubName AND Day>0
---     GROUP BY ProjectID,Log_ProductionRate.WorkMethod,Day
---     )Productivity
--- ON Activity.ProjectID=Productivity.ProjectID AND
--- Fact_TaskDetail.WorkMethod=Productivity.WorkMethod AND
--- Productivity.Day=Activity.Day
--- LEFT JOIN True_SubCollision
--- ON True_SubCollision.ProjectID=Activity.ProjectID AND
--- True_SubCollision.Day=Activity.Day AND
--- True_SubCollision.SubName=Fact_TaskDetail.SubName;
---
--- DROP VIEW IF EXISTS Result_WaitingDays;
--- CREATE VIEW IF NOT EXISTS Result_WaitingDays AS
--- SELECT Start.*,EndDay,EndDay-StartDay-WorkDays+1 WaitingDays,WorkDays
--- FROM (
---   SELECT ProjectID,SubName,Day StartDay
---   FROM (
---     SELECT *
---     FROM Event_WorkBegin
---       LEFT JOIN Fact_TaskDetail
---         ON Event_WorkBegin.TaskID=Fact_TaskDetail.TaskID
---     ORDER BY ProjectID,SubName,Day DESC
---   )
---   GROUP BY ProjectID,SubName
--- )Start
--- LEFT JOIN (
---     SELECT ProjectID,SubName,Day EndDay
---     FROM (
---       SELECT *
---       FROM True_TaskLatest
---       ORDER BY ProjectID,SubName,Day
---     )
---     GROUP BY ProjectID,SubName
---     )End
--- ON Start.ProjectID=End.ProjectID and Start.SubName=End.SubName
--- LEFT JOIN (
---     SELECT ProjectID,SubName, count(Day) WorkDays
---     FROM True_TaskTrace
---     WHERE RemainingQty<>TotalQty
---     GROUP BY ProjectID,SubName
---     )Work
--- ON Start.ProjectID=Work.ProjectID AND Start.SubName=Work.SubName AND End.ProjectID=Work.ProjectID AND End.SubName=Work.SubName;
-
 COMMIT;

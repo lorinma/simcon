@@ -27,7 +27,6 @@ import datetime
 import pandas as pd
 import numpy as np
 from sqlalchemy import *
-import json
 from rdoclient import RandomOrgClient
 import time
 
@@ -56,13 +55,9 @@ class Simulation:
 
     def a_day(self, day):
         self.meet_all(day)
-
         # who goes where and tries working on what
         confirmed = self.work(day)
-
-        # self.collision(day)
         self.design_change(day)
-        # self.check(day)
         self.infer(day, confirmed)
 
     def meet_all(self, day):
@@ -180,18 +175,6 @@ class Simulation:
 
         return assign
 
-    # def collision(self, day):
-    #     col = pd.read_sql_query(
-    #         "SELECT * FROM True_SubCollision WHERE ProjectID=" + str(self.id) + " and Day=" + str(day), self.engine)
-    #     if len(col['Floor']) == 0:
-    #         return 0
-    #     floors = col['Floor'].unique()
-    #     for floor in floors:
-    #         # only need to update their production rate and space priority
-    #         # no need to sync wp status, since these have been update by sync_space
-    #         self.sync_production_rate(col[col.Floor == floor][['SubName']])
-    #         self.sync_priority_space(col[col.Floor == floor][['SubName']])
-
     def norm_random(self, mean, std):
         try:
             r = RandomOrgClient(self.random_key)
@@ -201,24 +184,6 @@ class Simulation:
         except:
             ran = np.random.normal(mean, std, 1)[0]
         return ran
-
-    # def check(self, day):
-    #     if self.quality_check == 0:
-    #         return 0
-    #     wps = pd.read_sql_query("SELECT * FROM True_TaskFinishedQualityUncheck WHERE ProjectID=" + str(self.id),
-    #                             self.engine)
-    #     if len(wps['TaskID']) == 0:
-    #         return 0
-    #     passed = list()
-    #     for i in xrange(len(wps['TaskID'])):
-    #         passed.append(np.random.binomial(1, wps['QualityPassRate'][i], 1)[0])
-    #     wps['Pass'] = passed
-    #     wps['Day'] = day
-    #     wps[['ProjectID', 'TaskID', 'Day', 'Pass']].to_sql(name="Event_QualityCheck", con=self.engine,
-    #                                                        if_exists='append', index=False)
-    #     rework = wps[wps.Pass == 0].reset_index(drop=True)
-    #     rework['RemainingQty'] = rework['TotalQty']
-    #     self.log_wp(rework)
 
     def design_change(self, day):
         projects = pd.read_sql_query(
@@ -271,9 +236,6 @@ class Simulation:
         # and needs to be filtered out
         confirmed['F'] = 1
         assign = pd.read_sql_query("SELECT * FROM View_TaskBacklog WHERE KnowledgeOwner!=SubName", self.engine)
-        # if len(confirmed['F']) == 0 and len(wps['TaskID']) == 0:
-        #     self.meet_all(day)
-        #     return 0
 
         assign = assign.merge(confirmed[['KnowledgeOwner', 'Floor', 'ProjectID', 'F']],
                               on=['KnowledgeOwner', 'Floor', 'ProjectID'], how='left')
@@ -304,49 +266,10 @@ class Simulation:
         assign.loc[assign['RemainingQty'] < 0, 'RemainingQty'] = 0
         self.log_wp(assign)
 
-    #
-    # def sync(self, subs):
-    #     self.sync_work_package(subs)
-    #     self.sync_production_rate(subs)
-    #     self.sync_priority_space(subs)
-    #
-    # def sync_work_package(self, subs):
-    #     status = pd.read_sql_query("SELECT * FROM True_TaskLatest" + str(
-    #         self.id), self.engine)
-    #     subs_status = subs.merge(status, on=['SubName'], how='inner')
-    #     for sub in subs['SubName'].tolist():
-    #         subs_status['KnowledgeOwner'] = sub
-    #         self.log_wp(subs_status[subs_status.KnowledgeOwner != subs_status.SubName])
-    #
-    # def sync_production_rate(self, subs):
-    #     status = pd.read_sql_query("SELECT * FROM True_ProductionRateLatest WHERE ProjectID=" + str(
-    #         self.id), self.engine)
-    #     subs_status = subs.merge(status, on=['SubName'], how='inner')
-    #     for sub in subs['SubName'].tolist():
-    #         subs_status['KnowledgeOwner'] = sub
-    #         self.log_production_rate(subs_status[subs_status.KnowledgeOwner != subs_status.SubName])
-    #
-    # def sync_priority_space(self, subs):
-    #     status = pd.read_sql_query("SELECT * FROM True_WorkSpacePriorityLatest WHERE ProjectID=" + str(
-    #         self.id), self.engine)
-    #     subs_status = subs.merge(status, on=['SubName'], how='inner')
-    #     for sub in subs['SubName'].tolist():
-    #         subs_status['KnowledgeOwner'] = sub
-    #         self.log_priority_space(subs_status[subs_status.KnowledgeOwner != subs_status.SubName])
-
     def export(self, filename):
 
         result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
         result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
-        # result[['WPName', 'Date', 'Day', 'StatusFiltered', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
-        #         'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'ProjectID', 'TaskID']].to_csv(
-        #     filename, sep='\t', encoding='utf-8',
-        #     index=False)
-        # result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'Retrace',
-        #         'DesignChange', 'LowProductivity', 'Meeting', 'QualityFail', 'Collision', 'ProductionRate', 'ProjectID',
-        #         'TaskID']].to_csv(
-        #     filename, sep='\t', encoding='utf-8',
-        #     index=False)
 
         result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'ProjectID', 'TaskID', 'NotMature',
                 'DesignChange', 'PredecessorIncomplete', 'WorkSpaceCongestion', 'ExternalCondition']].to_csv(
@@ -356,6 +279,9 @@ class Simulation:
 
 
 if __name__ == '__main__':
+    t0 = time.clock()
     game = Simulation()
     game.run()
     game.export("result.csv")
+    t1 = time.clock() - t0
+    print 'the whole simulation takes', t1, 'seconds'
