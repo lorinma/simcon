@@ -839,7 +839,6 @@ SELECT View_TaskLatest.ProjectID,KnowledgeOwner,Day,Fact_TaskDetail.*
 WHERE RemainingQty>0 AND RemainingQty<View_TaskLatest.TotalQty AND Day>0
 ORDER BY View_TaskLatest.ProjectID, KnowledgeOwner, SubName;
 
-
 DROP VIEW IF EXISTS True_SubWorking;
 CREATE VIEW IF NOT EXISTS True_SubWorking as
 	SELECT *
@@ -859,9 +858,9 @@ CREATE VIEW IF NOT EXISTS View_TaskBacklog as
     FROM (
       SELECT *
       FROM (
-        SELECT *,sum(preqty) PreQty
+        SELECT *,sum(pre) PreQty
         FROM (
-          SELECT Unfinished.*, View_TaskLatest.RemainingQty preqty
+          SELECT Unfinished.*, View_TaskLatest.RemainingQty pre
           FROM (
                  SELECT Unfinished.*, PredecessorTaskID
                  FROM (
@@ -964,11 +963,11 @@ FROM (
 	SELECT * FROM (
     SELECT
       *,
-      sum(preqty) PreQty
+      sum(pre) PreQty
     FROM (
       SELECT
         Unfinished.*,
-        True_TaskLatest.RemainingQty preqty
+        True_TaskLatest.RemainingQty pre
       FROM (
              SELECT
                Unfinished.*,
@@ -987,7 +986,7 @@ FROM (
     )
     GROUP BY ProjectID, TaskID
   )
-	WHERE PreQty ISNULL OR PreQty = 0
+	WHERE PreQty IS NULL OR PreQty = 0
 )FreeTask
 		LEFT JOIN View_SubWorking View_SubWorking1
 			ON View_SubWorking1.ProjectID = FreeTask.ProjectID AND
