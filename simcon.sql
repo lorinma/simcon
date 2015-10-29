@@ -81,72 +81,72 @@ INSERT INTO `Fact_WorkMethod` (SubName, WorkMethod, InitialProductionRate, Quali
   SELECT
     'Gravel',
     'Gravel base layer',
+    19.0,
     1.0,
-    1.0,
-    0.3
+    3.0
   UNION ALL
   SELECT
     'Plumbing',
     'Pipes in the floor',
+    30.0,
     1.0,
-    1.0,
-    0.3
+    11.0
   UNION ALL
   SELECT
     'Electricity',
     'Electric conduits in the floor',
+    27.0,
     1.0,
-    1.0,
-    0.3
+    1.0
   UNION ALL
   SELECT
     'Tiling',
     'Floor tiling',
+    41.0,
     1.0,
-    1.0,
-    0.3
+    5.0
   UNION ALL
   SELECT
     'Partition',
     'Partition phase 1',
+    56.0,
     1.0,
-    1.0,
-    0.3
+    16.0
   UNION ALL
   SELECT
     'Plumbing',
     'Pipes in the wall',
+    25.0,
     1.0,
-    1.0,
-    0.3
+    1.0
   UNION ALL
   SELECT
     'Partition',
     'Partition phase 2',
+    16.0,
     1.0,
-    1.0,
-    0.3
+    6.0
   UNION ALL
   SELECT
     'Electricity',
     'Electric conduits in the wall',
+    23.0,
     1.0,
-    1.0,
-    0.3
+    7.0
   UNION ALL
   SELECT
     'Partition',
     'Partition phase 3',
+    25.0,
     1.0,
-    1.0,
-    0.3
+    15.0
   UNION ALL
   SELECT
     'Tiling',
     'Wall tiling',
+    15.0,
     1.0,
-    1.0,
-    0.3
+    4.0
 );
 
 DROP TABLE IF EXISTS "Fact_WorkMethodDependency";
@@ -208,301 +208,301 @@ INSERT INTO `Fact_Task` (TaskID, WorkMethod, Floor, InitialQty) SELECT * FROM (
     1,
     'Gravel base layer',
     1,
-    5.0
+    170.0
   UNION ALL
   SELECT
     2,
     'Gravel base layer',
     2,
-    5.0
+    170.0
   UNION ALL
   SELECT
     3,
     'Gravel base layer',
     3,
-    5.0
+    170.0
   UNION ALL
   SELECT
     4,
     'Gravel base layer',
     4,
-    5.0
+    170.0
   UNION ALL
   SELECT
     5,
     'Gravel base layer',
     5,
-    5.0
+    170.0
   UNION ALL
   SELECT
     6,
     'Pipes in the floor',
     1,
-    5.0
+    100.0
   UNION ALL
   SELECT
     7,
     'Pipes in the floor',
     2,
-    5.0
+    100.0
   UNION ALL
   SELECT
     8,
     'Pipes in the floor',
     3,
-    5.0
+    100.0
   UNION ALL
   SELECT
     9,
     'Pipes in the floor',
     4,
-    5.0
+    100.0
   UNION ALL
   SELECT
     10,
     'Pipes in the floor',
     5,
-    5.0
+    100.0
   UNION ALL
   SELECT
     11,
     'Electric conduits in the floor',
     1,
-    5.0
+    80.0
   UNION ALL
   SELECT
     12,
     'Electric conduits in the floor',
     2,
-    5.0
+    80.0
   UNION ALL
   SELECT
     13,
     'Electric conduits in the floor',
     3,
-    5.0
+    80.0
   UNION ALL
   SELECT
     14,
     'Electric conduits in the floor',
     4,
-    5.0
+    80.0
   UNION ALL
   SELECT
     15,
     'Electric conduits in the floor',
     5,
-    5.0
+    80.0
   UNION ALL
   SELECT
     16,
     'Floor tiling',
     1,
-    5.0
+    720.0
   UNION ALL
   SELECT
     17,
     'Floor tiling',
     2,
-    5.0
+    720.0
   UNION ALL
   SELECT
     18,
     'Floor tiling',
     3,
-    5.0
+    720.0
   UNION ALL
   SELECT
     19,
     'Floor tiling',
     4,
-    5.0
+    720.0
   UNION ALL
   SELECT
     20,
     'Floor tiling',
     5,
-    5.0
+    720.0
   UNION ALL
   SELECT
     21,
     'Partition phase 1',
     1,
-    5.0
+    750.0
   UNION ALL
   SELECT
     22,
     'Partition phase 1',
     2,
-    5.0
+    750.0
   UNION ALL
   SELECT
     23,
     'Partition phase 1',
     3,
-    5.0
+    750.0
   UNION ALL
   SELECT
     24,
     'Partition phase 1',
     4,
-    5.0
+    750.0
   UNION ALL
   SELECT
     25,
     'Partition phase 1',
     5,
-    5.0
+    750.0
   UNION ALL
   SELECT
     26,
     'Pipes in the wall',
     1,
-    5.0
+    190.0
   UNION ALL
   SELECT
     27,
     'Pipes in the wall',
     2,
-    5.0
+    190.0
   UNION ALL
   SELECT
     28,
     'Pipes in the wall',
     3,
-    5.0
+    190.0
   UNION ALL
   SELECT
     29,
     'Pipes in the wall',
     4,
-    5.0
+    190.0
   UNION ALL
   SELECT
     30,
     'Pipes in the wall',
     5,
-    5.0
+    190.0
   UNION ALL
   SELECT
     31,
     'Electric conduits in the wall',
     1,
-    5.0
+    180.0
   UNION ALL
   SELECT
     32,
     'Electric conduits in the wall',
     2,
-    5.0
+    180.0
   UNION ALL
   SELECT
     33,
     'Electric conduits in the wall',
     3,
-    5.0
+    180.0
   UNION ALL
   SELECT
     34,
     'Electric conduits in the wall',
     4,
-    5.0
+    180.0
   UNION ALL
   SELECT
     35,
     'Electric conduits in the wall',
     5,
-    5.0
+    180.0
   UNION ALL
   SELECT
     36,
     'Partition phase 2',
     1,
-    5.0
+    20.0
   UNION ALL
   SELECT
     37,
     'Partition phase 2',
     2,
-    5.0
+    20.0
   UNION ALL
   SELECT
     38,
     'Partition phase 2',
     3,
-    5.0
+    20.0
   UNION ALL
   SELECT
     39,
     'Partition phase 2',
     4,
-    5.0
+    20.0
   UNION ALL
   SELECT
     40,
     'Partition phase 2',
     5,
-    5.0
+    20.0
   UNION ALL
   SELECT
     41,
     'Wall tiling',
     1,
-    5.0
+    290.0
   UNION ALL
   SELECT
     42,
     'Wall tiling',
     2,
-    5.0
+    290.0
   UNION ALL
   SELECT
     43,
     'Wall tiling',
     3,
-    5.0
+    290.0
   UNION ALL
   SELECT
     44,
     'Wall tiling',
     4,
-    5.0
+    290.0
   UNION ALL
   SELECT
     45,
     'Wall tiling',
     5,
-    5.0
+    290.0
   UNION ALL
   SELECT
     46,
     'Partition phase 3',
     1,
-    5.0
+    200.0
   UNION ALL
   SELECT
     47,
     'Partition phase 3',
     2,
-    5.0
+    200.0
   UNION ALL
   SELECT
     48,
     'Partition phase 3',
     3,
-    5.0
+    200.0
   UNION ALL
   SELECT
     49,
     'Partition phase 3',
     4,
-    5.0
+    200.0
   UNION ALL
   SELECT
     50,
     'Partition phase 3',
     5,
-    5.0
+    200.0
 );
 
 DROP TABLE IF EXISTS "Log_WorkSpacePriority";
