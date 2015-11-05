@@ -35,6 +35,39 @@ class Simulation:
     def __init__(self):
         self.engine = create_engine("sqlite:///simcon")
 
+        initial_project = pd.read_sql_query("SELECT 0 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",self.engine)
+        initial_project[
+            ['MeetingCycle', 'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
+             'TaskSelectionFunction']].to_sql(
+            name="Fact_Project", con=self.engine, if_exists='append', index=False)
+        initial_project = pd.read_sql_query("SELECT 10 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",self.engine)
+        initial_project[
+            ['MeetingCycle', 'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
+             'TaskSelectionFunction']].to_sql(
+            name="Fact_Project", con=self.engine, if_exists='append', index=False)
+        initial_project = pd.read_sql_query("SELECT 1 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",self.engine)
+        initial_project[
+            ['MeetingCycle', 'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
+             'TaskSelectionFunction']].to_sql(
+            name="Fact_Project", con=self.engine, if_exists='append', index=False)
+
+        initial_production_rate = pd.read_sql_query(
+            "select A.SubName KnowledgeOwner, InitialProductionRate ProductionRate, WorkMethod, C.ID ProjectID from Fact_Sub A join Fact_WorkMethod B join Fact_Project C where C.Done=0",
+            self.engine)
+        initial_task = pd.read_sql_query(
+            "select B.SubName KnowledgeOwner, TaskID, InitialQty RemainingQty, InitialQty TotalQty, C.ID ProjectID from Fact_Task A join Fact_Sub B join Fact_Project C where C.Done=0",
+            self.engine)
+        initial_space_priority = pd.read_sql_query(
+            "select A.SubName KnowledgeOwner, B.Floor, B.InitialPriority Priority, C.SubName SubName, D.ID ProjectID from Fact_Sub A join Fact_WorkSpace B join Fact_Sub C join Fact_Project D where D.Done=0",
+            self.engine)
+
+        initial_production_rate[['ProjectID', 'KnowledgeOwner', 'WorkMethod', 'ProductionRate']].to_sql(
+            name="Log_ProductionRate", con=self.engine, if_exists='append', index=False)
+        initial_task[['ProjectID', 'KnowledgeOwner', 'TaskID', 'RemainingQty', 'TotalQty']].to_sql(
+            name="Log_Task", con=self.engine, if_exists='append', index=False)
+        initial_space_priority[['ProjectID', 'KnowledgeOwner', 'Floor', 'Priority', 'SubName']].to_sql(
+            name="Log_WorkSpacePriority", con=self.engine, if_exists='append', index=False)
+
     def run(self):
         day = 1
         while not self.all_done():
@@ -267,11 +300,10 @@ class Simulation:
         self.log_wp(assign)
 
     def export(self, filename):
-
         result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
         result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
 
-        result[['WPName', 'Date', 'Day', 'Status', 'SubName', 'Floor', 'WorkMethod', 'ProjectID', 'TaskID', 'NotMature',
+        result[['WPName', 'Date', 'Day', 'Status', 'WorkMethod', 'SubName', 'Floor', 'ProjectID', 'TaskID', 'NotMature',
                 'DesignChange', 'PredecessorIncomplete', 'WorkSpaceCongestion', 'ExternalCondition']].to_csv(
             filename, sep='\t', encoding='utf-8',
             index=False)
@@ -279,9 +311,10 @@ class Simulation:
 
 
 if __name__ == '__main__':
-    t0 = time.clock()
-    game = Simulation()
-    game.run()
-    game.export("result.csv")
-    t1 = time.clock() - t0
-    print 'the whole simulation takes', t1, 'seconds'
+    for i in xrange(9):
+        t0 = time.clock()
+        game = Simulation()
+        game.run()
+        # game.export("result.csv")
+        t1 = time.clock() - t0
+        print 'simulation round',i,'takes', t1, 'seconds'
