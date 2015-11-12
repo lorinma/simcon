@@ -81,72 +81,72 @@ INSERT INTO `Fact_WorkMethod` (SubName, WorkMethod, InitialProductionRate, Quali
   SELECT
     'Gravel',
     'Gravel base layer',
-    19.0,
+    34.0,
     1.0,
-    3.0
+    5.0
   UNION ALL
   SELECT
     'Plumbing',
     'Pipes in the floor',
-    30.0,
+    69.0,
+    1.0,
+    5.0
+  UNION ALL
+  SELECT
+    'Electricity',
+    'Electric conduits in the floor',
+    51.0,
+    1.0,
+    8.0
+  UNION ALL
+  SELECT
+    'Tiling',
+    'Floor tiling',
+    62.0,
+    1.0,
+    9.0
+  UNION ALL
+  SELECT
+    'Partition',
+    'Partition phase 1',
+    110.0,
+    1.0,
+    12.0
+  UNION ALL
+  SELECT
+    'Plumbing',
+    'Pipes in the wall',
+    37.0,
+    1.0,
+    9.0
+  UNION ALL
+  SELECT
+    'Partition',
+    'Partition phase 2',
+    102.0,
     1.0,
     11.0
   UNION ALL
   SELECT
     'Electricity',
-    'Electric conduits in the floor',
-    27.0,
-    1.0,
-    1.0
-  UNION ALL
-  SELECT
-    'Tiling',
-    'Floor tiling',
+    'Electric conduits in the wall',
     41.0,
     1.0,
-    5.0
-  UNION ALL
-  SELECT
-    'Partition',
-    'Partition phase 1',
-    56.0,
-    1.0,
-    16.0
-  UNION ALL
-  SELECT
-    'Plumbing',
-    'Pipes in the wall',
-    25.0,
-    1.0,
-    1.0
-  UNION ALL
-  SELECT
-    'Partition',
-    'Partition phase 2',
-    16.0,
-    1.0,
-    6.0
-  UNION ALL
-  SELECT
-    'Electricity',
-    'Electric conduits in the wall',
-    23.0,
-    1.0,
-    7.0
+    2.0
   UNION ALL
   SELECT
     'Partition',
     'Partition phase 3',
-    25.0,
+    64.0,
     1.0,
-    15.0
+    4.0
   UNION ALL
   SELECT
     'Tiling',
     'Wall tiling',
-    15.0,
+    27.0,
     1.0,
-    4.0
+    2.0
 );
 
 DROP TABLE IF EXISTS "Fact_WorkMethodDependency";
@@ -385,36 +385,6 @@ INSERT INTO `Fact_Task` (TaskID, WorkMethod, Floor, InitialQty) SELECT * FROM (
     190.0
   UNION ALL
   SELECT
-    31,
-    'Electric conduits in the wall',
-    1,
-    180.0
-  UNION ALL
-  SELECT
-    32,
-    'Electric conduits in the wall',
-    2,
-    180.0
-  UNION ALL
-  SELECT
-    33,
-    'Electric conduits in the wall',
-    3,
-    180.0
-  UNION ALL
-  SELECT
-    34,
-    'Electric conduits in the wall',
-    4,
-    180.0
-  UNION ALL
-  SELECT
-    35,
-    'Electric conduits in the wall',
-    5,
-    180.0
-  UNION ALL
-  SELECT
     36,
     'Partition phase 2',
     1,
@@ -445,34 +415,34 @@ INSERT INTO `Fact_Task` (TaskID, WorkMethod, Floor, InitialQty) SELECT * FROM (
     20.0
   UNION ALL
   SELECT
-    41,
-    'Wall tiling',
+    31,
+    'Electric conduits in the wall',
     1,
-    290.0
+    180.0
   UNION ALL
   SELECT
-    42,
-    'Wall tiling',
+    32,
+    'Electric conduits in the wall',
     2,
-    290.0
+    180.0
   UNION ALL
   SELECT
-    43,
-    'Wall tiling',
+    33,
+    'Electric conduits in the wall',
     3,
-    290.0
+    180.0
   UNION ALL
   SELECT
-    44,
-    'Wall tiling',
+    34,
+    'Electric conduits in the wall',
     4,
-    290.0
+    180.0
   UNION ALL
   SELECT
-    45,
-    'Wall tiling',
+    35,
+    'Electric conduits in the wall',
     5,
-    290.0
+    180.0
   UNION ALL
   SELECT
     46,
@@ -503,6 +473,36 @@ INSERT INTO `Fact_Task` (TaskID, WorkMethod, Floor, InitialQty) SELECT * FROM (
     'Partition phase 3',
     5,
     200.0
+  UNION ALL
+  SELECT
+    41,
+    'Wall tiling',
+    1,
+    290.0
+  UNION ALL
+  SELECT
+    42,
+    'Wall tiling',
+    2,
+    290.0
+  UNION ALL
+  SELECT
+    43,
+    'Wall tiling',
+    3,
+    290.0
+  UNION ALL
+  SELECT
+    44,
+    'Wall tiling',
+    4,
+    290.0
+  UNION ALL
+  SELECT
+    45,
+    'Wall tiling',
+    5,
+    290.0
 );
 
 DROP TABLE IF EXISTS "Log_WorkSpacePriority";
@@ -1098,4 +1098,12 @@ CREATE VIEW IF NOT EXISTS _Result as
       ON True_TaskTrace.ProjectID=Event_DesignChange.ProjectID AND
          True_TaskTrace.TaskID=Event_DesignChange.TaskID AND
          True_TaskTrace.Day=Event_DesignChange.Day;
+
+DROP VIEW IF EXISTS _ResultRich;
+CREATE VIEW IF NOT EXISTS _ResultRich as
+  SELECT *
+  FROM _Result
+    LEFT JOIN Fact_Project
+      ON Fact_Project.ID=_Result.ProjectID;
+
 COMMIT;

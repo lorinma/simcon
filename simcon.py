@@ -35,17 +35,23 @@ class Simulation:
     def __init__(self):
         self.engine = create_engine("sqlite:///simcon")
 
-        initial_project = pd.read_sql_query("SELECT 0 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",self.engine)
+        initial_project = pd.read_sql_query(
+            "SELECT 0 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",
+            self.engine)
         initial_project[
             ['MeetingCycle', 'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
              'TaskSelectionFunction']].to_sql(
             name="Fact_Project", con=self.engine, if_exists='append', index=False)
-        initial_project = pd.read_sql_query("SELECT 10 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",self.engine)
+        initial_project = pd.read_sql_query(
+            "SELECT 10 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",
+            self.engine)
         initial_project[
             ['MeetingCycle', 'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
              'TaskSelectionFunction']].to_sql(
             name="Fact_Project", con=self.engine, if_exists='append', index=False)
-        initial_project = pd.read_sql_query("SELECT 1 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",self.engine)
+        initial_project = pd.read_sql_query(
+            "SELECT 1 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",
+            self.engine)
         initial_project[
             ['MeetingCycle', 'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
              'TaskSelectionFunction']].to_sql(
@@ -299,22 +305,28 @@ class Simulation:
         assign.loc[assign['RemainingQty'] < 0, 'RemainingQty'] = 0
         self.log_wp(assign)
 
-    def export(self, filename):
-        result = pd.read_sql_query("SELECT * FROM _Result", self.engine)
-        result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
 
-        result[['WPName', 'Date', 'Day', 'Status', 'WorkMethod', 'SubName', 'Floor', 'ProjectID', 'TaskID', 'NotMature',
-                'DesignChange', 'PredecessorIncomplete', 'WorkSpaceCongestion', 'ExternalCondition']].to_csv(
-            filename, sep='\t', encoding='utf-8',
-            index=False)
-        print "result exported to", filename
+def export(filename):
+    engine = create_engine("sqlite:///simcon")
+    result = pd.read_sql_query("SELECT * FROM _ResultRich", engine)
+    result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
+
+    result[['WPName', 'Date', 'Day', 'Status', 'WorkMethod', 'SubName', 'Floor', 'ProjectID', 'TaskID', 'NotMature',
+            'DesignChange', 'PredecessorIncomplete', 'WorkSpaceCongestion', 'ExternalCondition', 'MeetingCycle',
+            'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
+            'TaskSelectionFunction', 'PriorityChange']].to_csv(
+        filename, sep='\t', encoding='utf-8',
+        index=False)
+    print "result exported to", filename
 
 
 if __name__ == '__main__':
-    for i in xrange(9):
+    # TODO separate the simulation initialization and records insertion.
+    # TODO sub, task, workmethod link to project in Fact_xx as well
+    for i in xrange(10):
         t0 = time.clock()
         game = Simulation()
         game.run()
-        # game.export("result.csv")
         t1 = time.clock() - t0
-        print 'simulation round',i,'takes', t1, 'seconds'
+        print 'simulation round', i, 'takes', t1, 'seconds'
+    export("result.csv")
