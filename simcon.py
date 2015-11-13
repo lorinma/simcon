@@ -35,44 +35,44 @@ class Simulation:
     def __init__(self):
         self.engine = create_engine("sqlite:///simcon")
 
-        initial_project = pd.read_sql_query(
-            "SELECT 0 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",
-            self.engine)
-        initial_project[
-            ['MeetingCycle', 'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
-             'TaskSelectionFunction']].to_sql(
-            name="Fact_Project", con=self.engine, if_exists='append', index=False)
-        initial_project = pd.read_sql_query(
-            "SELECT 10 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",
-            self.engine)
-        initial_project[
-            ['MeetingCycle', 'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
-             'TaskSelectionFunction']].to_sql(
-            name="Fact_Project", con=self.engine, if_exists='append', index=False)
-        initial_project = pd.read_sql_query(
-            "SELECT 1 MeetingCycle,10 DesignChangeCycle,1.0 DesignChangeVariation,1.0 ProductionRateChange,0 QualityCheck,1 TaskSelectionFunction",
-            self.engine)
-        initial_project[
-            ['MeetingCycle', 'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
-             'TaskSelectionFunction']].to_sql(
-            name="Fact_Project", con=self.engine, if_exists='append', index=False)
+    def new_project(self):
+        projects = pd.read_excel(io="simcon.xlsx", sheetname="Project", header=0)
+        subs = pd.read_excel(io="simcon.xlsx", sheetname="Sub", header=0)
+        work_method = pd.read_excel(io="simcon.xlsx", sheetname="WorkMethod", header=0)
+        work_method_dependency = pd.read_excel(io="simcon.xlsx", sheetname="WorkMethodDependency", header=0)
+        workspace = pd.read_excel(io="simcon.xlsx", sheetname="WorkSpace", header=0)
+        tasks = pd.read_excel(io="simcon.xlsx", sheetname="Task", header=0)
+
+        projects[['MeetingCycle', 'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
+                  'TaskSelectionFunction']].to_sql(name="Fact_Project", con=self.engine, if_exists='append',
+                                                   index=False)
+        projects_ids = pd.read_sql_query("SELECT ID from Fact_Project WHERE Done=0", self.engine)['ID'].tolist()
+        for id in projects_ids:
+            subs['ProjectID'] = id
+            work_method['ProjectID'] = id
+            work_method_dependency['ProjectID'] = id
+            workspace['ProjectID'] = id
+            tasks['ProjectID'] = id
+
+            subs.to_sql(name="Fact_Sub", con=self.engine, if_exists="append", index=False)
+            work_method.to_sql(name="Fact_WorkMethod", con=self.engine, if_exists="append", index=False)
+            work_method_dependency.to_sql(name="Fact_WorkMethodDependency", con=self.engine, if_exists="append",
+                                          index=False)
+            workspace.to_sql(name="Fact_WorkSpace", con=self.engine, if_exists="append", index=False)
+            tasks.to_sql(name="Fact_Task", con=self.engine, if_exists="append", index=False)
 
         initial_production_rate = pd.read_sql_query(
-            "select A.SubName KnowledgeOwner, InitialProductionRate ProductionRate, WorkMethod, C.ID ProjectID from Fact_Sub A join Fact_WorkMethod B join Fact_Project C where C.Done=0",
+            "SELECT WorkMethod,InitialProductionRate ProductionRate,ID ProjectID, Fact_Sub.SubName KnowledgeOwner FROM (SELECT Fact_Project.ID FROM Fact_Project WHERE Done=0) LEFT JOIN Fact_WorkMethod ON ID=Fact_WorkMethod.ProjectID LEFT JOIN Fact_Sub ON ID=Fact_Sub.ProjectID",
             self.engine)
         initial_task = pd.read_sql_query(
-            "select B.SubName KnowledgeOwner, TaskID, InitialQty RemainingQty, InitialQty TotalQty, C.ID ProjectID from Fact_Task A join Fact_Sub B join Fact_Project C where C.Done=0",
+            "SELECT TaskID,InitialQty TotalQty,InitialQty RemainingQty,ID ProjectID,SubName KnowledgeOwner FROM (SELECT Fact_Project.ID FROM Fact_Project WHERE Done=0) LEFT JOIN Fact_Task ON ID=Fact_Task.ProjectID LEFT JOIN Fact_Sub ON ID=Fact_Sub.ProjectID;",
             self.engine)
         initial_space_priority = pd.read_sql_query(
-            "select A.SubName KnowledgeOwner, B.Floor, B.InitialPriority Priority, C.SubName SubName, D.ID ProjectID from Fact_Sub A join Fact_WorkSpace B join Fact_Sub C join Fact_Project D where D.Done=0",
+            "SELECT Fact_Sub.SubName SubName,Fact_Sub.ProjectID ProjectID, Knowledge.SubName KnowledgeOwner,Floor,InitialPriority WorkSpacePriority FROM (SELECT Fact_Project.ID FROM Fact_Project WHERE Done=0) LEFT JOIN Fact_Sub ON ID=Fact_Sub.ProjectID LEFT JOIN Fact_Sub Knowledge ON ID=Knowledge.ProjectID LEFT JOIN Fact_WorkSpace ON ID=Fact_WorkSpace.ProjectID;",
             self.engine)
-
-        initial_production_rate[['ProjectID', 'KnowledgeOwner', 'WorkMethod', 'ProductionRate']].to_sql(
-            name="Log_ProductionRate", con=self.engine, if_exists='append', index=False)
-        initial_task[['ProjectID', 'KnowledgeOwner', 'TaskID', 'RemainingQty', 'TotalQty']].to_sql(
-            name="Log_Task", con=self.engine, if_exists='append', index=False)
-        initial_space_priority[['ProjectID', 'KnowledgeOwner', 'Floor', 'Priority', 'SubName']].to_sql(
-            name="Log_WorkSpacePriority", con=self.engine, if_exists='append', index=False)
+        initial_production_rate.to_sql(name="Log_ProductionRate", con=self.engine, if_exists='append', index=False)
+        initial_task.to_sql(name="Log_Task", con=self.engine, if_exists='append', index=False)
+        initial_space_priority.to_sql(name="Log_WorkSpacePriority", con=self.engine, if_exists='append', index=False)
 
     def run(self):
         day = 1
@@ -103,7 +103,7 @@ class Simulation:
         projects = pd.read_sql_query(
             "SELECT ID as ProjectID FROM Fact_Project WHERE MeetingCycle<>0 AND " + str(day) + " % MeetingCycle =0",
             self.engine)
-        if len(projects.ProjectID) == 0:
+        if len(projects.ProjectID) == 0 or day == 1:
             return 0
         # information about task progress
         sync_task = pd.read_sql_query("SELECT * FROM Sync_Task", self.engine)
@@ -134,7 +134,7 @@ class Simulation:
             name="Log_ProductionRate", con=self.engine, if_exists='append', index=False)
 
     def log_priority_space(self, data):
-        data[['ProjectID', 'KnowledgeOwner', 'Floor', 'Priority', 'SubName', 'Day']].to_sql(
+        data[['ProjectID', 'KnowledgeOwner', 'Floor', 'WorkSpacePriority', 'SubName', 'Day']].to_sql(
             name="Log_WorkSpacePriority", con=self.engine, if_exists='append', index=False)
 
     def work(self, day):
@@ -288,7 +288,7 @@ class Simulation:
         assign = assign[assign.S.isnull()].reset_index(drop=True)
 
         assign = assign.sort_values(
-            ['ProjectID', 'KnowledgeOwner', 'SubName', 'TaskCompleteness', 'FloorCompleteness', 'WorkspacePriority',
+            ['ProjectID', 'KnowledgeOwner', 'SubName', 'TaskCompleteness', 'FloorCompleteness', 'WorkSpacePriority',
              'Ran'],
             ascending=[1, 1, 1, 0, 0, 0, 0])
         assign = assign[assign.groupby(['ProjectID', 'KnowledgeOwner', 'SubName']).cumcount() == 0].reset_index(
@@ -305,28 +305,24 @@ class Simulation:
         assign.loc[assign['RemainingQty'] < 0, 'RemainingQty'] = 0
         self.log_wp(assign)
 
-
-def export(filename):
-    engine = create_engine("sqlite:///simcon")
-    result = pd.read_sql_query("SELECT * FROM _ResultRich", engine)
-    result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
-
-    result[['WPName', 'Date', 'Day', 'Status', 'WorkMethod', 'SubName', 'Floor', 'ProjectID', 'TaskID', 'NotMature',
-            'DesignChange', 'PredecessorIncomplete', 'WorkSpaceCongestion', 'ExternalCondition', 'MeetingCycle',
-            'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
-            'TaskSelectionFunction', 'PriorityChange']].to_csv(
-        filename, sep='\t', encoding='utf-8',
-        index=False)
-    print "result exported to", filename
+    def export(self, filename):
+        result = pd.read_sql_query("SELECT * FROM _ResultRich", self.engine)
+        result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
+        result[['WPName', 'Date', 'Day', 'Status', 'WorkMethod', 'SubName', 'Floor', 'ProjectID', 'TaskID', 'NotMature',
+                'DesignChange', 'PredecessorIncomplete', 'WorkSpaceCongestion', 'ExternalCondition', 'MeetingCycle',
+                'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
+                'TaskSelectionFunction', 'PriorityChange']].to_csv(
+            filename, sep='\t', encoding='utf-8',
+            index=False)
+        print "result exported to", filename
 
 
 if __name__ == '__main__':
-    # TODO separate the simulation initialization and records insertion.
-    # TODO sub, task, workmethod link to project in Fact_xx as well
+    game = Simulation()
     for i in xrange(10):
         t0 = time.clock()
-        game = Simulation()
+        game.new_project()
         game.run()
         t1 = time.clock() - t0
         print 'simulation round', i, 'takes', t1, 'seconds'
-    export("result.csv")
+    game.export("result.csv")

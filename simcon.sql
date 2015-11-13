@@ -12,186 +12,39 @@ CREATE TABLE IF NOT EXISTS "Fact_Project" (
   `TaskSelectionFunction`	INTEGER NOT NULL DEFAULT 0,
   `Done`	INTEGER NOT NULL DEFAULT 0
 );
--- INSERT INTO `Fact_Project` (MeetingCycle, DesignChangeCycle,
---                             DesignChangeVariation,ProductionRateChange,
---                             QualityCheck,TaskSelectionFunction) SELECT * FROM (
---   SELECT 0,10,1.0,1.0,0,1
---       UNION ALL
---       SELECT 10,10,1.0,1.0,0,1
---       UNION ALL
---       SELECT 1,10,1.0,1.0,0,1
--- );
 
 DROP TABLE IF EXISTS "Fact_Sub";
 CREATE TABLE IF NOT EXISTS "Fact_Sub" (
-  `SubName`	TEXT NOT NULL UNIQUE,
-  PRIMARY KEY(SubName)
-);
-INSERT INTO 'Fact_Sub' (SubName) SELECT * FROM (
-  SELECT 'Electricity'
-  UNION ALL
-  SELECT 'Gravel'
-  UNION ALL
-  SELECT 'Partition'
-  UNION ALL
-  SELECT 'Plumbing'
-  UNION ALL
-  SELECT 'Tiling'
+  `SubID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+  `SubName`	TEXT NOT NULL,
+  `ProjectID`	INTEGER NOT NULL
 );
 
 DROP TABLE IF EXISTS "Fact_WorkSpace";
 CREATE TABLE IF NOT EXISTS "Fact_WorkSpace" (
-  `Floor`	INTEGER NOT NULL UNIQUE,
+  `WorkSpaceID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+  `Floor`	INTEGER NOT NULL,
   `InitialPriority`	REAL NOT NULL,
-  PRIMARY KEY(Floor)
-);
-INSERT INTO  'Fact_WorkSpace' (Floor, InitialPriority) SELECT * FROM (
-  SELECT
-    1,
-    5.0
-  UNION ALL
-  SELECT
-    2,
-    4.0
-  UNION ALL
-  SELECT
-    3,
-    3.0
-  UNION ALL
-  SELECT
-    4,
-    1.0
-  UNION ALL
-  SELECT
-    5,
-    1.0
+  `ProjectID`	INTEGER NOT NULL
 );
 
 DROP TABLE IF EXISTS "Fact_WorkMethod";
 CREATE TABLE IF NOT EXISTS "Fact_WorkMethod" (
+  `WorkMethodID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
   `SubName`	TEXT NOT NULL,
-  `WorkMethod`	TEXT NOT NULL UNIQUE,
+  `WorkMethod`	TEXT NOT NULL,
   `InitialProductionRate`	REAL NOT NULL,
   `QualityRate`	REAL NOT NULL,
   `PerformanceStd`	REAL,
-  PRIMARY KEY(WorkMethod),
-  FOREIGN KEY(`SubName`) REFERENCES Fact_Sub ( SubName )
-);
-INSERT INTO `Fact_WorkMethod` (SubName, WorkMethod, InitialProductionRate, QualityRate, PerformanceStd) SELECT * FROM (
-  SELECT
-    'Gravel',
-    'Gravel base layer',
-    34.0,
-    1.0,
-    5.0
-  UNION ALL
-  SELECT
-    'Plumbing',
-    'Pipes in the floor',
-    69.0,
-    1.0,
-    5.0
-  UNION ALL
-  SELECT
-    'Electricity',
-    'Electric conduits in the floor',
-    51.0,
-    1.0,
-    8.0
-  UNION ALL
-  SELECT
-    'Tiling',
-    'Floor tiling',
-    62.0,
-    1.0,
-    9.0
-  UNION ALL
-  SELECT
-    'Partition',
-    'Partition phase 1',
-    110.0,
-    1.0,
-    12.0
-  UNION ALL
-  SELECT
-    'Plumbing',
-    'Pipes in the wall',
-    37.0,
-    1.0,
-    9.0
-  UNION ALL
-  SELECT
-    'Partition',
-    'Partition phase 2',
-    102.0,
-    1.0,
-    11.0
-  UNION ALL
-  SELECT
-    'Electricity',
-    'Electric conduits in the wall',
-    41.0,
-    1.0,
-    2.0
-  UNION ALL
-  SELECT
-    'Partition',
-    'Partition phase 3',
-    64.0,
-    1.0,
-    4.0
-  UNION ALL
-  SELECT
-    'Tiling',
-    'Wall tiling',
-    27.0,
-    1.0,
-    2.0
+  `ProjectID`	INTEGER NOT NULL
 );
 
 DROP TABLE IF EXISTS "Fact_WorkMethodDependency";
 CREATE TABLE IF NOT EXISTS "Fact_WorkMethodDependency" (
+  `WorkMethodDependencyID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
   `PredecessorWorkMethod`	TEXT NOT NULL,
   `SuccessorWorkMethod`	TEXT NOT NULL,
-  FOREIGN KEY(`PredecessorWorkMethod`) REFERENCES Fact_WorkMethod ( WorkMethod ),
-  FOREIGN KEY(`SuccessorWorkMethod`) REFERENCES Fact_WorkMethod ( WorkMethod )
-);
-INSERT INTO `Fact_WorkMethodDependency` (PredecessorWorkMethod, SuccessorWorkMethod) SELECT * FROM (
-  SELECT
-    'Gravel base layer',
-    'Pipes in the floor'
-  UNION ALL
-  SELECT
-    'Gravel base layer',
-    'Electric conduits in the floor'
-  UNION ALL
-  SELECT
-    'Pipes in the floor',
-    'Floor tiling'
-  UNION ALL
-  SELECT
-    'Electric conduits in the floor',
-    'Floor tiling'
-  UNION ALL
-  SELECT
-    'Partition phase 1',
-    'Pipes in the wall'
-  UNION ALL
-  SELECT
-    'Pipes in the wall',
-    'Partition phase 2'
-  UNION ALL
-  SELECT
-    'Partition phase 2',
-    'Electric conduits in the wall'
-  UNION ALL
-  SELECT
-    'Electric conduits in the wall',
-    'Partition phase 3'
-  UNION ALL
-  SELECT
-    'Partition phase 3',
-    'Wall tiling'
+  `ProjectID`	INTEGER NOT NULL
 );
 
 DROP TABLE IF EXISTS "Fact_Task";
@@ -200,309 +53,7 @@ CREATE TABLE IF NOT EXISTS "Fact_Task" (
   `WorkMethod`	TEXT NOT NULL,
   `Floor`	INTEGER NOT NULL,
   `InitialQty`	REAL NOT NULL,
-  FOREIGN KEY(`WorkMethod`) REFERENCES Fact_WorkMethod ( WorkMethod ),
-  FOREIGN KEY(`Floor`) REFERENCES Fact_WorkSpace ( Floor )
-);
-INSERT INTO `Fact_Task` (TaskID, WorkMethod, Floor, InitialQty) SELECT * FROM (
-  SELECT
-    1,
-    'Gravel base layer',
-    1,
-    170.0
-  UNION ALL
-  SELECT
-    2,
-    'Gravel base layer',
-    2,
-    170.0
-  UNION ALL
-  SELECT
-    3,
-    'Gravel base layer',
-    3,
-    170.0
-  UNION ALL
-  SELECT
-    4,
-    'Gravel base layer',
-    4,
-    170.0
-  UNION ALL
-  SELECT
-    5,
-    'Gravel base layer',
-    5,
-    170.0
-  UNION ALL
-  SELECT
-    6,
-    'Pipes in the floor',
-    1,
-    100.0
-  UNION ALL
-  SELECT
-    7,
-    'Pipes in the floor',
-    2,
-    100.0
-  UNION ALL
-  SELECT
-    8,
-    'Pipes in the floor',
-    3,
-    100.0
-  UNION ALL
-  SELECT
-    9,
-    'Pipes in the floor',
-    4,
-    100.0
-  UNION ALL
-  SELECT
-    10,
-    'Pipes in the floor',
-    5,
-    100.0
-  UNION ALL
-  SELECT
-    11,
-    'Electric conduits in the floor',
-    1,
-    80.0
-  UNION ALL
-  SELECT
-    12,
-    'Electric conduits in the floor',
-    2,
-    80.0
-  UNION ALL
-  SELECT
-    13,
-    'Electric conduits in the floor',
-    3,
-    80.0
-  UNION ALL
-  SELECT
-    14,
-    'Electric conduits in the floor',
-    4,
-    80.0
-  UNION ALL
-  SELECT
-    15,
-    'Electric conduits in the floor',
-    5,
-    80.0
-  UNION ALL
-  SELECT
-    16,
-    'Floor tiling',
-    1,
-    720.0
-  UNION ALL
-  SELECT
-    17,
-    'Floor tiling',
-    2,
-    720.0
-  UNION ALL
-  SELECT
-    18,
-    'Floor tiling',
-    3,
-    720.0
-  UNION ALL
-  SELECT
-    19,
-    'Floor tiling',
-    4,
-    720.0
-  UNION ALL
-  SELECT
-    20,
-    'Floor tiling',
-    5,
-    720.0
-  UNION ALL
-  SELECT
-    21,
-    'Partition phase 1',
-    1,
-    750.0
-  UNION ALL
-  SELECT
-    22,
-    'Partition phase 1',
-    2,
-    750.0
-  UNION ALL
-  SELECT
-    23,
-    'Partition phase 1',
-    3,
-    750.0
-  UNION ALL
-  SELECT
-    24,
-    'Partition phase 1',
-    4,
-    750.0
-  UNION ALL
-  SELECT
-    25,
-    'Partition phase 1',
-    5,
-    750.0
-  UNION ALL
-  SELECT
-    26,
-    'Pipes in the wall',
-    1,
-    190.0
-  UNION ALL
-  SELECT
-    27,
-    'Pipes in the wall',
-    2,
-    190.0
-  UNION ALL
-  SELECT
-    28,
-    'Pipes in the wall',
-    3,
-    190.0
-  UNION ALL
-  SELECT
-    29,
-    'Pipes in the wall',
-    4,
-    190.0
-  UNION ALL
-  SELECT
-    30,
-    'Pipes in the wall',
-    5,
-    190.0
-  UNION ALL
-  SELECT
-    36,
-    'Partition phase 2',
-    1,
-    20.0
-  UNION ALL
-  SELECT
-    37,
-    'Partition phase 2',
-    2,
-    20.0
-  UNION ALL
-  SELECT
-    38,
-    'Partition phase 2',
-    3,
-    20.0
-  UNION ALL
-  SELECT
-    39,
-    'Partition phase 2',
-    4,
-    20.0
-  UNION ALL
-  SELECT
-    40,
-    'Partition phase 2',
-    5,
-    20.0
-  UNION ALL
-  SELECT
-    31,
-    'Electric conduits in the wall',
-    1,
-    180.0
-  UNION ALL
-  SELECT
-    32,
-    'Electric conduits in the wall',
-    2,
-    180.0
-  UNION ALL
-  SELECT
-    33,
-    'Electric conduits in the wall',
-    3,
-    180.0
-  UNION ALL
-  SELECT
-    34,
-    'Electric conduits in the wall',
-    4,
-    180.0
-  UNION ALL
-  SELECT
-    35,
-    'Electric conduits in the wall',
-    5,
-    180.0
-  UNION ALL
-  SELECT
-    46,
-    'Partition phase 3',
-    1,
-    200.0
-  UNION ALL
-  SELECT
-    47,
-    'Partition phase 3',
-    2,
-    200.0
-  UNION ALL
-  SELECT
-    48,
-    'Partition phase 3',
-    3,
-    200.0
-  UNION ALL
-  SELECT
-    49,
-    'Partition phase 3',
-    4,
-    200.0
-  UNION ALL
-  SELECT
-    50,
-    'Partition phase 3',
-    5,
-    200.0
-  UNION ALL
-  SELECT
-    41,
-    'Wall tiling',
-    1,
-    290.0
-  UNION ALL
-  SELECT
-    42,
-    'Wall tiling',
-    2,
-    290.0
-  UNION ALL
-  SELECT
-    43,
-    'Wall tiling',
-    3,
-    290.0
-  UNION ALL
-  SELECT
-    44,
-    'Wall tiling',
-    4,
-    290.0
-  UNION ALL
-  SELECT
-    45,
-    'Wall tiling',
-    5,
-    290.0
+  `ProjectID`	INTEGER NOT NULL
 );
 
 DROP TABLE IF EXISTS "Log_WorkSpacePriority";
@@ -511,10 +62,10 @@ CREATE TABLE IF NOT EXISTS "Log_WorkSpacePriority" (
   `KnowledgeOwner`	TEXT NOT NULL,
   `Day`	INTEGER NOT NULL DEFAULT 0,
   `Floor`	INTEGER NOT NULL,
-  `Priority`	REAL NOT NULL,
+  `WorkSpacePriority`	REAL NOT NULL,
   `ProjectID`	INTEGER NOT NULL,
   `SubName`	TEXT NOT NULL,
-  FOREIGN KEY(`KnowledgeOwner`) REFERENCES Fact_Sub ( SubName ),
+  FOREIGN KEY(`KnowledgeOwner`) REFERENCES Fact_Sub ( SubID ),
   FOREIGN KEY(`Floor`) REFERENCES Fact_WorkSpace ( Floor ),
   FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID ),
   FOREIGN KEY(`SubName`) REFERENCES Fact_Sub ( SubName )
@@ -547,17 +98,17 @@ CREATE TABLE IF NOT EXISTS "Log_ProductionRate" (
   FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID )
 );
 
-DROP TABLE IF EXISTS "Log_Manager";
-CREATE TABLE IF NOT EXISTS "Log_Manager" (
-  `ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-  `Day`	INTEGER NOT NULL DEFAULT 0,
-  `TaskID`	INTEGER NOT NULL,
-  `RemainingQty`	REAL NOT NULL,
-  `TotalQty`	REAL NOT NULL,
-  `ProjectID`	INTEGER NOT NULL,
-  FOREIGN KEY(`TaskID`) REFERENCES Fact_Task ( TaskID ),
-  FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID )
-);
+-- DROP TABLE IF EXISTS "Log_Manager";
+-- CREATE TABLE IF NOT EXISTS "Log_Manager" (
+--   `ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+--   `Day`	INTEGER NOT NULL DEFAULT 0,
+--   `TaskID`	INTEGER NOT NULL,
+--   `RemainingQty`	REAL NOT NULL,
+--   `TotalQty`	REAL NOT NULL,
+--   `ProjectID`	INTEGER NOT NULL,
+--   FOREIGN KEY(`TaskID`) REFERENCES Fact_Task ( TaskID ),
+--   FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID )
+-- );
 
 DROP TABLE IF EXISTS "Event_Retrace";
 CREATE TABLE IF NOT EXISTS "Event_Retrace" (
@@ -669,19 +220,21 @@ CREATE VIEW IF NOT EXISTS Fact_TaskDetail as
   SELECT TaskID,Floor,Fact_WorkMethod.*
   FROM Fact_Task
     LEFT JOIN Fact_WorkMethod
-      ON Fact_WorkMethod.WorkMethod = Fact_Task.WorkMethod;
+      ON Fact_WorkMethod.WorkMethod = Fact_Task.WorkMethod AND
+         Fact_WorkMethod.ProjectID=Fact_Task.ProjectID;
 
 DROP VIEW IF EXISTS Fact_TaskDependency;
 CREATE VIEW IF NOT EXISTS Fact_TaskDependency as
-  SELECT PredecessorTaskID,Fact_Task.TaskID SuccessorTaskID
+  SELECT PredecessorTaskID,Fact_Task.TaskID SuccessorTaskID,Fact_Task.ProjectID ProjectID
   FROM (
-         SELECT Fact_Task.TaskID PredecessorTaskID,Floor,SuccessorWorkMethod
+         SELECT Fact_Task.TaskID PredecessorTaskID,Floor,SuccessorWorkMethod,Fact_Task.ProjectID
          FROM Fact_Task
            INNER JOIN Fact_WorkMethodDependency
-             ON Fact_Task.WorkMethod=Fact_WorkMethodDependency.PredecessorWorkMethod
+             ON Fact_Task.WorkMethod=Fact_WorkMethodDependency.PredecessorWorkMethod AND
+                Fact_Task.ProjectID=Fact_WorkMethodDependency.ProjectID
        ) PredecessorTask
     INNER JOIN Fact_Task
-      ON PredecessorTask.Floor=Fact_Task.Floor AND PredecessorTask.SuccessorWorkMethod=Fact_Task.WorkMethod
+      ON PredecessorTask.Floor=Fact_Task.Floor AND PredecessorTask.SuccessorWorkMethod=Fact_Task.WorkMethod AND PredecessorTask.ProjectID=Fact_Task.ProjectID
   ORDER BY PredecessorTaskID,SuccessorTaskID;
 
 DROP VIEW IF EXISTS View_TaskLatest;
@@ -691,8 +244,8 @@ CREATE VIEW IF NOT EXISTS View_TaskLatest as
     SELECT Log_Task.*
     FROM Log_Task
       INNER JOIN Fact_Project
-      ON Log_Task.ProjectID=Fact_Project.ID
-      WHERE Fact_Project.Done=0
+        ON Log_Task.ProjectID=Fact_Project.ID
+    WHERE Fact_Project.Done=0
     ORDER BY ProjectID, KnowledgeOwner, TaskID, ID
   )
   GROUP BY ProjectID,KnowledgeOwner,TaskID;
@@ -703,7 +256,7 @@ CREATE VIEW IF NOT EXISTS True_TaskLatest as
   FROM View_TaskLatest
     LEFT JOIN Fact_TaskDetail
       ON Fact_TaskDetail.TaskID=View_TaskLatest.TaskID
-  WHERE View_TaskLatest.KnowledgeOwner = Fact_TaskDetail.SubName;
+  WHERE View_TaskLatest.KnowledgeOwner = Fact_TaskDetail.SubName AND View_TaskLatest.ProjectID=Fact_TaskDetail.ProjectID;
 
 DROP VIEW IF EXISTS True_ProjectCompleteness;
 CREATE VIEW IF NOT EXISTS True_ProjectCompleteness as
@@ -714,7 +267,7 @@ CREATE VIEW IF NOT EXISTS True_ProjectCompleteness as
 
 DROP VIEW IF EXISTS View_SubCompleteness;
 CREATE VIEW IF NOT EXISTS View_SubCompleteness as
-  SELECT ProjectID,KnowledgeOwner,SubName,1-sum(RemainingQty)/sum(TotalQty) SubCompleteness, sum(TotalQty) SubTotalWork
+  SELECT View_TaskLatest.ProjectID ProjectID,KnowledgeOwner,SubName,1-sum(RemainingQty)/sum(TotalQty) SubCompleteness, sum(TotalQty) SubTotalWork
   FROM View_TaskLatest
     LEFT JOIN Fact_TaskDetail
       ON View_TaskLatest.TaskID=Fact_TaskDetail.TaskID
@@ -744,20 +297,22 @@ CREATE VIEW IF NOT EXISTS Sync_Task AS
 -- only positive production rate is used in work planning
 DROP VIEW IF EXISTS View_ProductionRateLatest;
 CREATE VIEW IF NOT EXISTS View_ProductionRateLatest as
-  SELECT *
+  SELECT Log_ProductionRate.ProjectID,Log_ProductionRate.WorkMethod,Log_ProductionRate.KnowledgeOwner,Log_ProductionRate.ProductionRate
   FROM Log_ProductionRate
     INNER JOIN Fact_Project
-    ON ProjectID=Fact_Project.ID
+      ON ProjectID=Fact_Project.ID
   WHERE ProductionRate>0 AND Done=0
   GROUP BY ProjectID,KnowledgeOwner,WorkMethod;
 
 DROP VIEW IF EXISTS True_ProductionRateLatest;
 CREATE VIEW IF NOT EXISTS True_ProductionRateLatest as
-  SELECT View_ProductionRateLatest.*,SubName
+  SELECT View_ProductionRateLatest.ProjectID,View_ProductionRateLatest.ProductionRate,View_ProductionRateLatest.WorkMethod,SubName
   FROM View_ProductionRateLatest
     LEFT JOIN Fact_WorkMethod
-      ON Fact_WorkMethod.WorkMethod=View_ProductionRateLatest.WorkMethod
-  WHERE View_ProductionRateLatest.KnowledgeOwner=Fact_WorkMethod.SubName;
+      ON Fact_WorkMethod.WorkMethod=View_ProductionRateLatest.WorkMethod AND
+         Fact_WorkMethod.ProjectID=View_ProductionRateLatest.ProjectID
+  WHERE View_ProductionRateLatest.KnowledgeOwner=Fact_WorkMethod.SubName AND
+        View_ProductionRateLatest.ProjectID=Fact_WorkMethod.ProjectID;
 
 DROP VIEW IF EXISTS Sync_ProductionRate;
 CREATE VIEW IF NOT EXISTS Sync_ProductionRate AS
@@ -776,11 +331,11 @@ CREATE VIEW IF NOT EXISTS Sync_ProductionRate AS
 
 DROP VIEW IF EXISTS View_WorkSpacePriorityLatest;
 CREATE VIEW IF NOT EXISTS View_WorkSpacePriorityLatest as
-  SELECT *
+  SELECT ProjectID,KnowledgeOwner,SubName,Floor,WorkSpacePriority
   FROM Log_WorkSpacePriority
     INNER JOIN Fact_Project
-    ON ProjectID=Fact_Project.ID
-    WHERE Done=0
+      ON ProjectID=Fact_Project.ID
+  WHERE Done=0
   GROUP BY ProjectID,KnowledgeOwner,SubName,Floor;
 
 DROP VIEW IF EXISTS True_WorkSpacePriorityLatest;
@@ -794,7 +349,7 @@ CREATE VIEW IF NOT EXISTS Sync_WorkSpacePriority AS
   SELECT LatestStatus.*, True_SubCompleteness.SubName KnowledgeOwner
   FROM True_SubCompleteness
     LEFT JOIN (
-                SELECT True_WorkSpacePriorityLatest.ProjectID, True_WorkSpacePriorityLatest.SubName,True_WorkSpacePriorityLatest.Floor,True_WorkSpacePriorityLatest.Priority
+                SELECT True_WorkSpacePriorityLatest.ProjectID, True_WorkSpacePriorityLatest.SubName,True_WorkSpacePriorityLatest.Floor,True_WorkSpacePriorityLatest.WorkSpacePriority
                 FROM True_WorkSpacePriorityLatest
                   INNER JOIN True_ProjectCompleteness
                     ON True_ProjectCompleteness.ProjectID=True_WorkSpacePriorityLatest.ProjectID
@@ -806,35 +361,37 @@ CREATE VIEW IF NOT EXISTS Sync_WorkSpacePriority AS
 
 DROP VIEW IF EXISTS View_FloorCompleteness;
 CREATE VIEW IF NOT EXISTS View_FloorCompleteness as
-  SELECT ProjectID,KnowledgeOwner,Floor,1-sum(RemainingQty)/sum(TotalQty) FloorCompleteness, sum(TotalQty) FloorTotalWork
+  SELECT View_TaskLatest.ProjectID ProjectID,KnowledgeOwner,Floor,1-sum(RemainingQty)/sum(TotalQty) FloorCompleteness, sum(TotalQty) FloorTotalWork
   FROM View_TaskLatest
     LEFT JOIN Fact_TaskDetail
-      ON View_TaskLatest.TaskID=Fact_TaskDetail.TaskID
-  GROUP BY ProjectID,KnowledgeOwner,Floor;
+      ON View_TaskLatest.TaskID=Fact_TaskDetail.TaskID AND
+         View_TaskLatest.ProjectID=Fact_TaskDetail.ProjectID
+  GROUP BY View_TaskLatest.ProjectID,KnowledgeOwner,Floor;
 
 DROP VIEW IF EXISTS True_FloorCompleteness;
 CREATE VIEW IF NOT EXISTS True_FloorCompleteness AS
-  SELECT True_TaskLatest.*, 1-sum(True_TaskLatest.RemainingQty)/sum(True_TaskLatest.TotalQty) FloorCompleteness
+  SELECT True_TaskLatest.ProjectID,True_TaskLatest.Floor, 1-sum(True_TaskLatest.RemainingQty)/sum(True_TaskLatest.TotalQty) FloorCompleteness
   FROM True_TaskLatest
   GROUP BY True_TaskLatest.ProjectID,True_TaskLatest.Floor;
 
 DROP VIEW IF EXISTS View_WorkMethodCompleteness;
 CREATE VIEW IF NOT EXISTS View_WorkMethodCompleteness as
-  SELECT ProjectID,KnowledgeOwner,WorkMethod,1-sum(RemainingQty)/sum(TotalQty) WorkMethodCompleteness, sum(TotalQty) WorkMethodTotalWork
+  SELECT View_TaskLatest.ProjectID,KnowledgeOwner,WorkMethod,1-sum(RemainingQty)/sum(TotalQty) WorkMethodCompleteness, sum(TotalQty) WorkMethodTotalWork
   FROM View_TaskLatest
     LEFT JOIN Fact_TaskDetail
       ON View_TaskLatest.TaskID=Fact_TaskDetail.TaskID
-  GROUP BY ProjectID,KnowledgeOwner,WorkMethod;
+  GROUP BY View_TaskLatest.ProjectID,KnowledgeOwner,WorkMethod;
 
 DROP VIEW IF EXISTS True_WorkMethodCompleteness;
 CREATE VIEW IF NOT EXISTS True_WorkMethodCompleteness as
-  SELECT True_TaskLatest.*, 1- sum(RemainingQty)/sum(TotalQty) WorkMethodCompleteness
+  SELECT ProjectID,WorkMethod, 1- sum(RemainingQty)/sum(TotalQty) WorkMethodCompleteness
   FROM True_TaskLatest
   GROUP BY True_TaskLatest.ProjectID,True_TaskLatest.WorkMethod;
 
+-- derive the Subs that were working yesterday (in most case is WIP)
 DROP VIEW IF EXISTS View_SubWorking;
 CREATE VIEW IF NOT EXISTS View_SubWorking as
-  SELECT View_TaskLatest.ProjectID,KnowledgeOwner,Day,Fact_TaskDetail.*
+  SELECT View_TaskLatest.ProjectID,KnowledgeOwner,Day,View_TaskLatest.TaskID, Fact_TaskDetail.Floor,Fact_TaskDetail.SubName,Fact_TaskDetail.WorkMethod
   FROM View_TaskLatest
     LEFT JOIN Fact_TaskDetail
       ON View_TaskLatest.TaskID=Fact_TaskDetail.TaskID
@@ -855,7 +412,7 @@ CREATE VIEW IF NOT EXISTS True_SubWorking as
 
 DROP VIEW IF EXISTS View_TaskBacklog;
 CREATE VIEW IF NOT EXISTS View_TaskBacklog as
-  SELECT Backlog.*,1-RemainingQty/TotalQty TaskCompleteness,ProductionRate,Priority WorkspacePriority,FloorCompleteness,WorkMethodCompleteness, random()%1000 Ran, FloorTotalWork, WorkMethodTotalWork, RemainingQty/FloorTotalWork SignificanceToFloor, RemainingQty/WorkMethodTotalWork SignificanceToWorkMethod
+  SELECT Backlog.ProjectID,Backlog.KnowledgeOwner,Backlog.Day,Backlog.TaskID,Backlog.RemainingQty,Backlog.TotalQty,Backlog.SubName,Backlog.Floor,Backlog.WorkMethod,Backlog.PerformanceStd,1-RemainingQty/TotalQty TaskCompleteness,ProductionRate,WorkSpacePriority,FloorCompleteness,WorkMethodCompleteness, random()%1000 Ran, FloorTotalWork, WorkMethodTotalWork, RemainingQty/FloorTotalWork SignificanceToFloor, RemainingQty/WorkMethodTotalWork SignificanceToWorkMethod
   FROM (
          SELECT
            FreeTask.*,
@@ -905,7 +462,7 @@ CREATE VIEW IF NOT EXISTS View_TaskBacklog as
              ON View_SubWorking2.ProjectID = FreeTask.ProjectID AND
                 View_SubWorking2.KnowledgeOwner = FreeTask.KnowledgeOwner AND
                 View_SubWorking2.SubName = Fact_TaskDetail.SubName
-         WHERE (View_SubWorking2.Floor=Fact_TaskDetail.Floor AND View_SubWorking1.SubName=Fact_TaskDetail.SubName) OR
+         WHERE (View_SubWorking2.Floor=Fact_TaskDetail.Floor AND View_SubWorking1.SubName=Fact_TaskDetail.SubName AND View_SubWorking1.ProjectID=View_SubWorking2.ProjectID) OR
                (View_SubWorking2.Floor IS NULL AND View_SubWorking1.SubName IS NULL)
        )Backlog
     LEFT JOIN View_ProductionRateLatest
@@ -925,11 +482,11 @@ CREATE VIEW IF NOT EXISTS View_TaskBacklog as
       ON View_WorkMethodCompleteness.ProjectID=Backlog.ProjectID AND
          View_WorkMethodCompleteness.KnowledgeOwner=Backlog.KnowledgeOwner AND
          View_WorkMethodCompleteness.WorkMethod=Backlog.WorkMethod
-  ORDER BY ProjectID,KnowledgeOwner,SubName,TaskCompleteness,FloorCompleteness,Priority,Ran;
+  ORDER BY Backlog.ProjectID,Backlog.KnowledgeOwner,Backlog.SubName,TaskCompleteness,FloorCompleteness,WorkSpacePriority,Ran;
 
 Drop VIEW IF EXISTS View_TaskSelectedRandom;
 CREATE VIEW IF NOT EXISTS View_TaskSelectedRandom AS
-  SELECT *
+  SELECT ProjectID,KnowledgeOwner,SubName,TaskID,ProductionRate,TotalQty,RemainingQty,Ran,TaskCompleteness,Floor,PerformanceStd,WorkMethod,SubName,FloorCompleteness,WorkSpacePriority
   FROM (
     SELECT *
     FROM View_TaskBacklog
@@ -940,14 +497,14 @@ CREATE VIEW IF NOT EXISTS View_TaskSelectedRandom AS
 
 DROP VIEW IF EXISTS View_TaskSelectedPrioritized;
 CREATE VIEW IF NOT EXISTS View_TaskSelectedPrioritized as
-  SELECT *
+  SELECT ProjectID,KnowledgeOwner,SubName,TaskID,ProductionRate,TotalQty,RemainingQty,Ran,TaskCompleteness,Floor,PerformanceStd,WorkMethod,SubName,FloorCompleteness,WorkSpacePriority
   FROM View_TaskBacklog
   WHERE View_TaskBacklog.KnowledgeOwner=View_TaskBacklog.SubName
   GROUP BY View_TaskBacklog.ProjectID,View_TaskBacklog.KnowledgeOwner,View_TaskBacklog.SubName;
 
 DROP VIEW IF EXISTS View_TaskSelected;
 CREATE VIEW IF NOT EXISTS View_TaskSelected as
-  SELECT Selected.*,ProductionRateChange
+  SELECT Selected.ProductionRate,Selected.TaskID,Selected.ProjectID,ProductionRateChange,TotalQty,RemainingQty,KnowledgeOwner,Ran,TaskCompleteness,Floor,PerformanceStd,WorkMethod,SubName,FloorCompleteness,WorkSpacePriority
   FROM (
          SELECT View_TaskSelectedPrioritized.*
          FROM View_TaskSelectedPrioritized
@@ -966,7 +523,7 @@ CREATE VIEW IF NOT EXISTS View_TaskSelected as
 
 DROP VIEW IF EXISTS True_TaskBacklog;
 CREATE VIEW IF NOT EXISTS True_TaskBacklog as
-  SELECT FreeTask.*
+  SELECT FreeTask.TaskID TaskID,FreeTask.ProjectID ProjectID
   FROM (
          SELECT * FROM (
            SELECT
@@ -1004,12 +561,12 @@ CREATE VIEW IF NOT EXISTS True_TaskBacklog as
       ON View_SubWorking2.ProjectID = FreeTask.ProjectID AND
          View_SubWorking2.KnowledgeOwner = FreeTask.KnowledgeOwner AND
          View_SubWorking2.SubName = FreeTask.SubName
-  WHERE (View_SubWorking2.Floor=FreeTask.Floor AND View_SubWorking1.SubName=FreeTask.SubName) OR
+  WHERE (View_SubWorking2.Floor=FreeTask.Floor AND View_SubWorking1.SubName=FreeTask.SubName AND View_SubWorking2.ProjectID=View_SubWorking1.ProjectID) OR
         (View_SubWorking2.Floor IS NULL AND View_SubWorking1.SubName IS NULL);
 
 DROP VIEW IF EXISTS True_DesignChangeRandom;
 CREATE VIEW IF NOT EXISTS True_DesignChangeRandom as
-  SELECT Change.*,Fact_Project.DesignChangeVariation
+  SELECT Change.TaskID,Change.ProjectID,Change.TotalQty,Change.RemainingQty, Fact_Project.DesignChangeVariation,Change.KnowledgeOwner,Change.Day
   FROM (
          SELECT *
          FROM (
@@ -1025,14 +582,15 @@ CREATE VIEW IF NOT EXISTS True_DesignChangeRandom as
     LEFT JOIN Fact_Project
       ON Change.ProjectID=Fact_Project.ID;
 
-DROP VIEW IF EXISTS True_TaskLatestRandomFloor;
-CREATE VIEW IF NOT EXISTS True_TaskLatestRandomFloor AS
-  SELECT True_TaskLatest.*
-  FROM True_ProjectCompleteness
-    LEFT JOIN True_TaskLatest
-      ON True_TaskLatest.ProjectID=True_ProjectCompleteness.ProjectID AND
-         True_TaskLatest.Floor=abs(random()% (SELECT max(Floor) FROM Fact_WorkSpace))+1
-  WHERE ProjectCompleteness<1;
+-- -- For Manager use
+-- DROP VIEW IF EXISTS True_TaskLatestRandomFloor;
+-- CREATE VIEW IF NOT EXISTS True_TaskLatestRandomFloor AS
+--   SELECT True_TaskLatest.*
+--   FROM True_ProjectCompleteness
+--     LEFT JOIN True_TaskLatest
+--       ON True_TaskLatest.ProjectID=True_ProjectCompleteness.ProjectID AND
+--          True_TaskLatest.Floor=abs(random()% (SELECT max(Floor) FROM Fact_WorkSpace))+1
+--   WHERE ProjectCompleteness<1;
 
 DROP VIEW IF EXISTS True_TaskTrace;
 CREATE VIEW IF NOT EXISTS True_TaskTrace as
@@ -1040,7 +598,7 @@ CREATE VIEW IF NOT EXISTS True_TaskTrace as
   FROM
     (
       SELECT
-        ProjectID,
+        Log_Task.ProjectID,
         Fact_TaskDetail.TaskID,
         Day,
         SubName,
@@ -1051,11 +609,11 @@ CREATE VIEW IF NOT EXISTS True_TaskTrace as
       FROM Log_Task
         LEFT JOIN Fact_TaskDetail
           ON Log_Task.TaskID = Fact_TaskDetail.TaskID
-      WHERE Log_Task.KnowledgeOwner = Fact_TaskDetail.SubName AND Day > 0
-      GROUP BY ProjectID, Log_Task.TaskID, Day
+      WHERE Log_Task.KnowledgeOwner = Fact_TaskDetail.SubName AND Day > 0 AND Log_Task.ProjectID=Fact_TaskDetail.ProjectID
+      GROUP BY Log_Task.ProjectID, Log_Task.TaskID, Day
       UNION
       SELECT
-        ProjectID,
+        Event_WorkBegin.ProjectID,
         Fact_TaskDetail.TaskID,
         Day - 1   Day,
         SubName,
