@@ -10,6 +10,7 @@ conda install pandas sqlalchemy requests
 
 ### Then:
 pip install xlrd
+
 pip install -U https://github.com/RandomOrg/JSON-RPC-Python/zipball/master
 
 ## Run the simulation
