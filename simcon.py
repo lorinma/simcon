@@ -419,8 +419,8 @@ class Simulation:
         result = pd.read_sql_query("SELECT * FROM _ResultRich", self.engine)
         result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
         result[['WPName', 'Date', 'Day', 'Status', 'WorkMethod', 'SubName', 'Floor', 'ProjectID', 'TaskID', 'NotMature',
-                'DesignChange', 'PredecessorIncomplete', 'WorkSpaceCongestion', 'ExternalCondition', 'MeetingCycle',
-                'DesignChangeCycle', 'DesignChangeVariation', 'ProductionRateChange', 'QualityCheck',
+                'DesignChange', 'PredecessorIncomplete', 'WorkSpaceCongestion', 'ExternalCondition', 'QualityFail', 'MeetingCycle',
+                'DesignChangeCycle', 'ProductionRateChange', 'QualityCheck',
                 'TaskSelectionFunction', 'PriorityChange']].to_csv(
             filename, sep='\t', encoding='utf-8',
             index=False)
@@ -429,10 +429,10 @@ class Simulation:
 
 if __name__ == '__main__':
     game = Simulation()
-    for i in xrange(1):
-        t0 = time.clock()
-        game.new_project()
-        game.run()
-        t1 = time.clock() - t0
-        print 'simulation round', i, 'takes', t1, 'seconds'
+    # for i in xrange(1):
+    #     t0 = time.clock()
+    #     game.new_project()
+    #     game.run()
+    #     t1 = time.clock() - t0
+    #     print 'simulation round', i, 'takes', t1, 'seconds'
     game.export("result.csv")

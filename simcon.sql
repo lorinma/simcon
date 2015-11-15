@@ -390,77 +390,77 @@ CREATE VIEW IF NOT EXISTS True_SubWorking as
 
 -- DROP VIEW IF EXISTS View_TaskBacklog;
 -- CREATE VIEW IF NOT EXISTS View_TaskBacklog as
-  SELECT Backlog.ProjectID,Backlog.KnowledgeOwner,Backlog.Day,Backlog.TaskID,Backlog.RemainingQty,Backlog.TotalQty,Backlog.SubName,Backlog.Floor,Backlog.WorkMethod,Backlog.PerformanceStd,1-RemainingQty/TotalQty TaskCompleteness,ProductionRate,WorkSpacePriority,FloorCompleteness,WorkMethodCompleteness, random()%1000 Ran, FloorTotalWork, WorkMethodTotalWork, RemainingQty/FloorTotalWork SignificanceToFloor, RemainingQty/WorkMethodTotalWork SignificanceToWorkMethod
-  FROM (
-         SELECT
-           FreeTask.*,
-           Fact_TaskDetail.SubName,
-           Fact_TaskDetail.Floor,
-           Fact_TaskDetail.WorkMethod,
-           Fact_TaskDetail.PerformanceStd
-         FROM (
-                SELECT *
+SELECT Backlog.ProjectID,Backlog.KnowledgeOwner,Backlog.Day,Backlog.TaskID,Backlog.RemainingQty,Backlog.TotalQty,Backlog.SubName,Backlog.Floor,Backlog.WorkMethod,Backlog.PerformanceStd,1-RemainingQty/TotalQty TaskCompleteness,ProductionRate,WorkSpacePriority,FloorCompleteness,WorkMethodCompleteness, random()%1000 Ran, FloorTotalWork, WorkMethodTotalWork, RemainingQty/FloorTotalWork SignificanceToFloor, RemainingQty/WorkMethodTotalWork SignificanceToWorkMethod
+FROM (
+       SELECT
+         FreeTask.*,
+         Fact_TaskDetail.SubName,
+         Fact_TaskDetail.Floor,
+         Fact_TaskDetail.WorkMethod,
+         Fact_TaskDetail.PerformanceStd
+       FROM (
+              SELECT *
+              FROM (
+                SELECT *,sum(pre) PreQty
                 FROM (
-                  SELECT *,sum(pre) PreQty
+                  SELECT Unfinished.*, View_TaskLatest.RemainingQty pre
                   FROM (
-                    SELECT Unfinished.*, View_TaskLatest.RemainingQty pre
-                    FROM (
-                           SELECT Unfinished.*, PredecessorTaskID
-                           FROM (
-                                  SELECT View_TaskLatest.*
-                                  FROM View_TaskLatest
-                                    INNER JOIN (
-                                                 SELECT
-                                                   SubName,
-                                                   ProjectID
-                                                 FROM True_SubCompleteness
-                                                 WHERE SubCompleteness < 1
-                                               ) UnfinishedSub
-                                      ON View_TaskLatest.ProjectID = UnfinishedSub.ProjectID AND
-                                         View_TaskLatest.KnowledgeOwner = UnfinishedSub.SubName
-                                  WHERE RemainingQty > 0
-                                ) Unfinished
-                             LEFT JOIN Fact_TaskDependency
-                               ON Unfinished.TaskID = Fact_TaskDependency.SuccessorTaskID
-                         )Unfinished
-                      LEFT JOIN View_TaskLatest
-                        ON Unfinished.ProjectID = View_TaskLatest.ProjectID AND
-                           Unfinished.KnowledgeOwner = View_TaskLatest.KnowledgeOwner AND
-                           Unfinished.PredecessorTaskID = View_TaskLatest.TaskID
-                  )GROUP BY ProjectID,KnowledgeOwner,TaskID
-                )WHERE PreQty IS NULL OR PreQty = 0
-              ) FreeTask
-           LEFT JOIN Fact_TaskDetail
-             ON FreeTask.TaskID = Fact_TaskDetail.TaskID
-           LEFT JOIN View_SubWorking View_SubWorking1
-             ON View_SubWorking1.ProjectID = FreeTask.ProjectID AND
-                View_SubWorking1.KnowledgeOwner = FreeTask.KnowledgeOwner AND
-                View_SubWorking1.Floor = Fact_TaskDetail.Floor
-           LEFT JOIN View_SubWorking View_SubWorking2
-             ON View_SubWorking2.ProjectID = FreeTask.ProjectID AND
-                View_SubWorking2.KnowledgeOwner = FreeTask.KnowledgeOwner AND
-                View_SubWorking2.SubName = Fact_TaskDetail.SubName
-         WHERE (View_SubWorking2.Floor=Fact_TaskDetail.Floor AND View_SubWorking1.SubName=Fact_TaskDetail.SubName AND View_SubWorking1.ProjectID=View_SubWorking2.ProjectID) OR
-               (View_SubWorking2.Floor IS NULL AND View_SubWorking1.SubName IS NULL)
-       )Backlog
-    LEFT JOIN View_ProductionRateLatest
-      ON Backlog.ProjectID=View_ProductionRateLatest.ProjectID AND
-         Backlog.KnowledgeOwner=View_ProductionRateLatest.KnowledgeOwner AND
-         Backlog.WorkMethod=View_ProductionRateLatest.WorkMethod
-    LEFT JOIN View_WorkSpacePriorityLatest
-      ON Backlog.ProjectID=View_WorkSpacePriorityLatest.ProjectID AND
-         Backlog.KnowledgeOwner=View_WorkSpacePriorityLatest.KnowledgeOwner AND
-         Backlog.SubName=View_WorkSpacePriorityLatest.SubName AND
-         Backlog.Floor=View_WorkSpacePriorityLatest.Floor
-    LEFT JOIN View_FloorCompleteness
-      ON View_FloorCompleteness.ProjectID=Backlog.ProjectID AND
-         View_FloorCompleteness.Floor=Backlog.Floor AND
-         View_FloorCompleteness.KnowledgeOwner=Backlog.KnowledgeOwner
-    LEFT JOIN View_WorkMethodCompleteness
-      ON View_WorkMethodCompleteness.ProjectID=Backlog.ProjectID AND
-         View_WorkMethodCompleteness.KnowledgeOwner=Backlog.KnowledgeOwner AND
-         View_WorkMethodCompleteness.WorkMethod=Backlog.WorkMethod
-  ORDER BY Backlog.ProjectID,Backlog.KnowledgeOwner,Backlog.SubName,TaskCompleteness,FloorCompleteness,WorkSpacePriority,Ran;
+                         SELECT Unfinished.*, PredecessorTaskID
+                         FROM (
+                                SELECT View_TaskLatest.*
+                                FROM View_TaskLatest
+                                  INNER JOIN (
+                                               SELECT
+                                                 SubName,
+                                                 ProjectID
+                                               FROM True_SubCompleteness
+                                               WHERE SubCompleteness < 1
+                                             ) UnfinishedSub
+                                    ON View_TaskLatest.ProjectID = UnfinishedSub.ProjectID AND
+                                       View_TaskLatest.KnowledgeOwner = UnfinishedSub.SubName
+                                WHERE RemainingQty > 0
+                              ) Unfinished
+                           LEFT JOIN Fact_TaskDependency
+                             ON Unfinished.TaskID = Fact_TaskDependency.SuccessorTaskID
+                       )Unfinished
+                    LEFT JOIN View_TaskLatest
+                      ON Unfinished.ProjectID = View_TaskLatest.ProjectID AND
+                         Unfinished.KnowledgeOwner = View_TaskLatest.KnowledgeOwner AND
+                         Unfinished.PredecessorTaskID = View_TaskLatest.TaskID
+                )GROUP BY ProjectID,KnowledgeOwner,TaskID
+              )WHERE PreQty IS NULL OR PreQty = 0
+            ) FreeTask
+         LEFT JOIN Fact_TaskDetail
+           ON FreeTask.TaskID = Fact_TaskDetail.TaskID
+         LEFT JOIN View_SubWorking View_SubWorking1
+           ON View_SubWorking1.ProjectID = FreeTask.ProjectID AND
+              View_SubWorking1.KnowledgeOwner = FreeTask.KnowledgeOwner AND
+              View_SubWorking1.Floor = Fact_TaskDetail.Floor
+         LEFT JOIN View_SubWorking View_SubWorking2
+           ON View_SubWorking2.ProjectID = FreeTask.ProjectID AND
+              View_SubWorking2.KnowledgeOwner = FreeTask.KnowledgeOwner AND
+              View_SubWorking2.SubName = Fact_TaskDetail.SubName
+       WHERE (View_SubWorking2.Floor=Fact_TaskDetail.Floor AND View_SubWorking1.SubName=Fact_TaskDetail.SubName AND View_SubWorking1.ProjectID=View_SubWorking2.ProjectID) OR
+             (View_SubWorking2.Floor IS NULL AND View_SubWorking1.SubName IS NULL)
+     )Backlog
+  LEFT JOIN View_ProductionRateLatest
+    ON Backlog.ProjectID=View_ProductionRateLatest.ProjectID AND
+       Backlog.KnowledgeOwner=View_ProductionRateLatest.KnowledgeOwner AND
+       Backlog.WorkMethod=View_ProductionRateLatest.WorkMethod
+  LEFT JOIN View_WorkSpacePriorityLatest
+    ON Backlog.ProjectID=View_WorkSpacePriorityLatest.ProjectID AND
+       Backlog.KnowledgeOwner=View_WorkSpacePriorityLatest.KnowledgeOwner AND
+       Backlog.SubName=View_WorkSpacePriorityLatest.SubName AND
+       Backlog.Floor=View_WorkSpacePriorityLatest.Floor
+  LEFT JOIN View_FloorCompleteness
+    ON View_FloorCompleteness.ProjectID=Backlog.ProjectID AND
+       View_FloorCompleteness.Floor=Backlog.Floor AND
+       View_FloorCompleteness.KnowledgeOwner=Backlog.KnowledgeOwner
+  LEFT JOIN View_WorkMethodCompleteness
+    ON View_WorkMethodCompleteness.ProjectID=Backlog.ProjectID AND
+       View_WorkMethodCompleteness.KnowledgeOwner=Backlog.KnowledgeOwner AND
+       View_WorkMethodCompleteness.WorkMethod=Backlog.WorkMethod
+ORDER BY Backlog.ProjectID,Backlog.KnowledgeOwner,Backlog.SubName,TaskCompleteness,FloorCompleteness,WorkSpacePriority,Ran;
 
 Drop VIEW IF EXISTS View_TaskSelectedRandom;
 CREATE VIEW IF NOT EXISTS View_TaskSelectedRandom AS
@@ -545,18 +545,18 @@ CREATE VIEW IF NOT EXISTS True_TaskBacklog as
 --who has been sent to where and work on what yesterday (eventually may not work due to constrains)
 DROP VIEW IF EXISTS True_AssignedTasks;
 CREATE VIEW IF NOT EXISTS True_AssignedTasks as
-SELECT True_TaskLatest.* FROM (
-  SELECT
-    ProjectID,
-    max(Day) Day
-  FROM True_TaskLatest
-  GROUP BY ProjectID
-) m LEFT JOIN True_TaskLatest ON m.ProjectID=True_TaskLatest.ProjectID AND m.Day=True_TaskLatest.Day;
+  SELECT True_TaskLatest.* FROM (
+                                  SELECT
+                                    ProjectID,
+                                    max(Day) Day
+                                  FROM True_TaskLatest
+                                  GROUP BY ProjectID
+                                ) m LEFT JOIN True_TaskLatest ON m.ProjectID=True_TaskLatest.ProjectID AND m.Day=True_TaskLatest.Day;
 
 -- Collision crews yesterday, also check if collision check is switch-on
 DROP VIEW IF EXISTS True_LatestCollision;
 CREATE VIEW IF NOT EXISTS True_LatestCollision as
-SELECT
+  SELECT
     True_TaskLatest.ProjectID ProjectID,
     True_TaskLatest.Floor     Floor,
     SubName,
@@ -571,7 +571,7 @@ SELECT
              CollisionInformationExchnage
            FROM True_AssignedTasks
              LEFT JOIN Fact_Project
-             ON ProjectID=Fact_Project.ID
+               ON ProjectID=Fact_Project.ID
            GROUP BY ProjectID, Floor
          )
          WHERE Crews > 1 AND CollisionInformationExchnage>0
@@ -582,36 +582,36 @@ SELECT
 
 DROP VIEW IF EXISTS Perception_Task;
 CREATE VIEW IF NOT EXISTS Perception_Task as
-SELECT DISTINCT ProjectID,KnowledgeOwner,TaskID,RemainingQty,TotalQty,SubName,Floor
-FROM (
---   what they see in the floor
-  SELECT * FROM (
-    SELECT True_AssignedTasks.ProjectID,True_AssignedTasks.KnowledgeOwner,True_TaskLatest.TaskID,True_TaskLatest.RemainingQty,True_TaskLatest.TotalQty,True_TaskLatest.SubName,True_TaskLatest.Floor
-    FROM True_AssignedTasks
-      LEFT JOIN True_TaskLatest
-        ON True_AssignedTasks.ProjectID=True_TaskLatest.ProjectID AND True_AssignedTasks.Floor=True_TaskLatest.Floor
-  )
-  UNION
-  SELECT * FROM (
--- what they hear from crews they met
-    SELECT Collision.ProjectID,Collision.KnowledgeOwner,True_TaskLatest.TaskID, True_TaskLatest.RemainingQty,True_TaskLatest.TotalQty,True_TaskLatest.SubName,True_TaskLatest.Floor FROM
-      (
-        SELECT
-          b.SubName KnowledgeOwner,
-          a.*
-        FROM True_LatestCollision a
-          LEFT JOIN True_LatestCollision b
-            ON a.ProjectID = b.ProjectID AND a.Floor = b.Floor
-        WHERE a.SubName <> b.SubName
-      )Collision LEFT JOIN True_TaskLatest
-        ON Collision.ProjectID=True_TaskLatest.ProjectID AND Collision.SubName=True_TaskLatest.SubName
-    WHERE Collision.Floor<>True_TaskLatest.Floor
-  )
-) WHERE KnowledgeOwner<>SubName;
+  SELECT DISTINCT ProjectID,KnowledgeOwner,TaskID,RemainingQty,TotalQty,SubName,Floor
+  FROM (
+    --   what they see in the floor
+    SELECT * FROM (
+      SELECT True_AssignedTasks.ProjectID,True_AssignedTasks.KnowledgeOwner,True_TaskLatest.TaskID,True_TaskLatest.RemainingQty,True_TaskLatest.TotalQty,True_TaskLatest.SubName,True_TaskLatest.Floor
+      FROM True_AssignedTasks
+        LEFT JOIN True_TaskLatest
+          ON True_AssignedTasks.ProjectID=True_TaskLatest.ProjectID AND True_AssignedTasks.Floor=True_TaskLatest.Floor
+    )
+    UNION
+    SELECT * FROM (
+      -- what they hear from crews they met
+      SELECT Collision.ProjectID,Collision.KnowledgeOwner,True_TaskLatest.TaskID, True_TaskLatest.RemainingQty,True_TaskLatest.TotalQty,True_TaskLatest.SubName,True_TaskLatest.Floor FROM
+        (
+          SELECT
+            b.SubName KnowledgeOwner,
+            a.*
+          FROM True_LatestCollision a
+            LEFT JOIN True_LatestCollision b
+              ON a.ProjectID = b.ProjectID AND a.Floor = b.Floor
+          WHERE a.SubName <> b.SubName
+        )Collision LEFT JOIN True_TaskLatest
+          ON Collision.ProjectID=True_TaskLatest.ProjectID AND Collision.SubName=True_TaskLatest.SubName
+      WHERE Collision.Floor<>True_TaskLatest.Floor
+    )
+  ) WHERE KnowledgeOwner<>SubName;
 
 DROP VIEW IF EXISTS Perception_ProductionRate;
 CREATE VIEW IF NOT EXISTS Perception_ProductionRate as
-SELECT Collision.ProjectID,Collision.KnowledgeOwner,True_ProductionRateLatest.WorkMethod, True_ProductionRateLatest.ProductionRate FROM
+  SELECT Collision.ProjectID,Collision.KnowledgeOwner,True_ProductionRateLatest.WorkMethod, True_ProductionRateLatest.ProductionRate FROM
     (
       SELECT
         b.SubName KnowledgeOwner,
@@ -625,7 +625,7 @@ SELECT Collision.ProjectID,Collision.KnowledgeOwner,True_ProductionRateLatest.Wo
 
 DROP VIEW IF EXISTS Perception_WorkSpacePriority;
 CREATE VIEW IF NOT EXISTS Perception_WorkSpacePriority as
-SELECT Collision.ProjectID,Collision.KnowledgeOwner,True_WorkSpacePriorityLatest.Floor,True_WorkSpacePriorityLatest.WorkSpacePriority,True_WorkSpacePriorityLatest.SubName FROM
+  SELECT Collision.ProjectID,Collision.KnowledgeOwner,True_WorkSpacePriorityLatest.Floor,True_WorkSpacePriorityLatest.WorkSpacePriority,True_WorkSpacePriorityLatest.SubName FROM
     (
       SELECT
         b.SubName KnowledgeOwner,
@@ -639,25 +639,25 @@ SELECT Collision.ProjectID,Collision.KnowledgeOwner,True_WorkSpacePriorityLatest
 
 DROP VIEW IF EXISTS View_InferTaskBacklog;
 CREATE VIEW IF NOT EXISTS View_InferTaskBacklog as
-SELECT Backlog.* FROM (
-  SELECT *
-  FROM View_TaskBacklog
-  WHERE KnowledgeOwner <> View_TaskBacklog.SubName
-)Backlog
-LEFT JOIN (
---     no one would work on this floor
-    SELECT ProjectID,SubName,Floor,TaskID,1 Assign FROM True_AssignedTasks
-    )Assign
-ON Backlog.ProjectID=Assign.ProjectID AND Backlog.KnowledgeOwner=Assign.SubName AND Backlog.Floor=Assign.Floor
-LEFT JOIN (
---     the collided subcontractor would not work any other tasks
-      SELECT a.SubName,a.Floor,a.ProjectID,b.KnowledgeOwner,1 Met FROM True_AssignedTasks a
-      LEFT JOIN True_AssignedTasks b
-      ON a.ProjectID=b.ProjectID AND a.Floor=b.Floor
-      WHERE a.SubName<>b.SubName
-    )Met
-ON Backlog.ProjectID=Met.ProjectID AND Backlog.KnowledgeOwner=Met.KnowledgeOwner AND Backlog.SubName=Met.SubName
-WHERE Assign ISNULL AND Met ISNULL;
+  SELECT Backlog.* FROM (
+                          SELECT *
+                          FROM View_TaskBacklog
+                          WHERE KnowledgeOwner <> View_TaskBacklog.SubName
+                        )Backlog
+    LEFT JOIN (
+                --     no one would work on this floor
+                SELECT ProjectID,SubName,Floor,TaskID,1 Assign FROM True_AssignedTasks
+              )Assign
+      ON Backlog.ProjectID=Assign.ProjectID AND Backlog.KnowledgeOwner=Assign.SubName AND Backlog.Floor=Assign.Floor
+    LEFT JOIN (
+                --     the collided subcontractor would not work any other tasks
+                SELECT a.SubName,a.Floor,a.ProjectID,b.KnowledgeOwner,1 Met FROM True_AssignedTasks a
+                  LEFT JOIN True_AssignedTasks b
+                    ON a.ProjectID=b.ProjectID AND a.Floor=b.Floor
+                WHERE a.SubName<>b.SubName
+              )Met
+      ON Backlog.ProjectID=Met.ProjectID AND Backlog.KnowledgeOwner=Met.KnowledgeOwner AND Backlog.SubName=Met.SubName
+  WHERE Assign ISNULL AND Met ISNULL;
 
 DROP VIEW IF EXISTS View_InferSelected;
 CREATE VIEW IF NOT EXISTS View_InferSelected as
@@ -706,53 +706,53 @@ CREATE VIEW IF NOT EXISTS True_DesignChangeRandom as
 
 DROP VIEW IF EXISTS True_TaskQualityUncheck;
 CREATE VIEW IF NOT EXISTS True_TaskQualityUncheck as
-SELECT Tasks.* FROM (
-  SELECT Fact_Task.*
-  FROM Fact_Task
-    INNER JOIN (
-      SELECT ID
-      FROM Fact_Project
-      WHERE Done = 0 AND QualityCheck=1
-      )Project
-      ON Fact_Task.ProjectID = Project.ID
-  )Tasks
-  LEFT JOIN (
-              SELECT ProjectID,TaskID
-              FROM (
-                SELECT ProjectID,TaskID,Pass FROM (
-                  SELECT Event_QualityCheck.*
-                  FROM Event_QualityCheck
-                    LEFT JOIN Fact_Project
-                      ON Event_QualityCheck.ProjectID = Fact_Project.ID
-                  WHERE Fact_Project.Done = 0
+  SELECT Tasks.* FROM (
+                        SELECT Fact_Task.*
+                        FROM Fact_Task
+                          INNER JOIN (
+                                       SELECT ID
+                                       FROM Fact_Project
+                                       WHERE Done = 0 AND QualityCheck=1
+                                     )Project
+                            ON Fact_Task.ProjectID = Project.ID
+                      )Tasks
+    LEFT JOIN (
+                SELECT ProjectID,TaskID
+                FROM (
+                  SELECT ProjectID,TaskID,Pass FROM (
+                    SELECT Event_QualityCheck.*
+                    FROM Event_QualityCheck
+                      LEFT JOIN Fact_Project
+                        ON Event_QualityCheck.ProjectID = Fact_Project.ID
+                    WHERE Fact_Project.Done = 0
+                  )
+                  GROUP BY ProjectID,TaskID
                 )
-                GROUP BY ProjectID,TaskID
-              )
-              WHERE Pass>0
-            )Passed
-    ON Tasks.TaskID=Passed.TaskID AND
-       Tasks.ProjectID=Passed.ProjectID
-WHERE Passed.TaskID ISNULL;
+                WHERE Pass>0
+              )Passed
+      ON Tasks.TaskID=Passed.TaskID AND
+         Tasks.ProjectID=Passed.ProjectID
+  WHERE Passed.TaskID ISNULL;
 
 DROP VIEW IF EXISTS True_TaskFinishedQualityUncheck;
 CREATE VIEW IF NOT EXISTS True_TaskFinishedQualityUncheck AS
-SELECT Latest.*,1-(1-QualityRate)*(1-WorkMethodCompleteness) QualityPassRate
-FROM True_TaskQualityUncheck
-INNER JOIN (SELECT * FROM True_TaskLatest WHERE RemainingQty=0) Latest
-ON True_TaskQualityUncheck.TaskID=Latest.TaskID
-INNER JOIN True_WorkMethodCompleteness
-ON True_TaskQualityUncheck.ProjectID=True_WorkMethodCompleteness.ProjectID
-   AND True_TaskQualityUncheck.WorkMethod=True_WorkMethodCompleteness.WorkMethod
-  INNER JOIN Fact_TaskDetail ON Fact_TaskDetail.ProjectID=Latest.ProjectID;
+  SELECT Latest.*,1-(1-QualityRate)*(1-WorkMethodCompleteness) QualityPassRate
+  FROM True_TaskQualityUncheck
+    INNER JOIN (SELECT * FROM True_TaskLatest WHERE RemainingQty=0) Latest
+      ON True_TaskQualityUncheck.TaskID=Latest.TaskID
+    INNER JOIN True_WorkMethodCompleteness
+      ON True_TaskQualityUncheck.ProjectID=True_WorkMethodCompleteness.ProjectID
+         AND True_TaskQualityUncheck.WorkMethod=True_WorkMethodCompleteness.WorkMethod
+    INNER JOIN Fact_TaskDetail ON Fact_TaskDetail.TaskID=Latest.TaskID;
 
 
 DROP VIEW IF EXISTS True_UnfinishedProject;
 CREATE VIEW IF NOT EXISTS True_UnfinishedProject as
---   confirm all pass the quality check if apply
-SELECT DISTINCT ProjectID FROM True_TaskQualityUncheck INNER JOIN Fact_Project ON ProjectID=ID WHERE QualityCheck=1
-UNION
---     only check completeness if no need quality check
-SELECT DISTINCT ProjectID FROM True_ProjectCompleteness INNER JOIN Fact_Project ON ProjectID=ID WHERE QualityCheck=0 AND ProjectCompleteness<1;
+  --   confirm all pass the quality check if apply
+  SELECT DISTINCT ProjectID FROM True_TaskQualityUncheck INNER JOIN Fact_Project ON ProjectID=ID WHERE QualityCheck=1
+  UNION
+  --     only check completeness if no need quality check
+  SELECT DISTINCT ProjectID FROM True_ProjectCompleteness INNER JOIN Fact_Project ON ProjectID=ID WHERE QualityCheck=0 AND ProjectCompleteness<1;
 
 
 DROP VIEW IF EXISTS True_TaskTrace;
@@ -797,7 +797,8 @@ CREATE VIEW IF NOT EXISTS _Result as
     CASE WHEN (Event_RetracePredecessor.Day ISNULL ) THEN 0 ELSE 1 END PredecessorIncomplete,
     CASE WHEN (Event_RetraceWorkSpace.Day ISNULL ) THEN 0 ELSE 1 END WorkSpaceCongestion,
     CASE WHEN (Event_RetraceExternalCondition.Day ISNULL ) THEN 0 ELSE 1 END ExternalCondition,
-    CASE WHEN (Event_DesignChange.Day ISNULL ) THEN 0 ELSE 1 END DesignChange
+    CASE WHEN (Event_DesignChange.Day ISNULL ) THEN 0 ELSE 1 END DesignChange,
+    CASE WHEN (Pass==0) THEN 1 ELSE 0 END QualityFail
   FROM True_TaskTrace
     LEFT JOIN Event_Retrace
       ON True_TaskTrace.ProjectID=Event_Retrace.ProjectID AND
@@ -818,7 +819,11 @@ CREATE VIEW IF NOT EXISTS _Result as
     LEFT JOIN Event_DesignChange
       ON True_TaskTrace.ProjectID=Event_DesignChange.ProjectID AND
          True_TaskTrace.TaskID=Event_DesignChange.TaskID AND
-         True_TaskTrace.Day=Event_DesignChange.Day;
+         True_TaskTrace.Day=Event_DesignChange.Day
+    LEFT JOIN Event_QualityCheck
+      on True_TaskTrace.ProjectID=Event_QualityCheck.ProjectID AND
+         True_TaskTrace.TaskID=Event_QualityCheck.TaskID AND
+         True_TaskTrace.Day=Event_QualityCheck.Day;
 
 DROP VIEW IF EXISTS _ResultRich;
 CREATE VIEW IF NOT EXISTS _ResultRich as
@@ -828,5 +833,3 @@ CREATE VIEW IF NOT EXISTS _ResultRich as
       ON Fact_Project.ID=_Result.ProjectID;
 
 COMMIT;
-
-
