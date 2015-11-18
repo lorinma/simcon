@@ -65,8 +65,7 @@ class Simulation:
         workspace = pd.read_excel(io="simcon.xlsx", sheetname="WorkSpace", header=0)
         tasks = pd.read_excel(io="simcon.xlsx", sheetname="Task", header=0)
 
-        projects[['MeetingCycle', 'DesignChangeCycle', 'ProductionRateChange', 'QualityCheck',
-                  'TaskSelectionFunction']].to_sql(name="Fact_Project", con=self.engine, if_exists='append',
+        projects.to_sql(name="Fact_Project", con=self.engine, if_exists='append',
                                                    index=False)
         projects_ids = pd.read_sql_query("SELECT ID from Fact_Project WHERE Done=0", self.engine)['ID'].tolist()
         for id in projects_ids:
@@ -421,7 +420,7 @@ class Simulation:
         result[['WPName', 'Date', 'Day', 'Status', 'WorkMethod', 'SubName', 'Floor', 'ProjectID', 'TaskID', 'NotMature',
                 'DesignChange', 'PredecessorIncomplete', 'WorkSpaceCongestion', 'ExternalCondition', 'QualityFail', 'MeetingCycle',
                 'DesignChangeCycle', 'ProductionRateChange', 'QualityCheck',
-                'TaskSelectionFunction', 'PriorityChange']].to_csv(
+                'TaskSelectionFunction', 'PriorityChange', 'CollisionInformationExchange','BeginDay','QualityWaste','DesignWaste','WasteDay', 'AddValue']].to_csv(
             filename, sep='\t', encoding='utf-8',
             index=False)
         print "result exported to", filename
@@ -429,10 +428,10 @@ class Simulation:
 
 if __name__ == '__main__':
     game = Simulation()
-    # for i in xrange(1):
-    #     t0 = time.clock()
-    #     game.new_project()
-    #     game.run()
-    #     t1 = time.clock() - t0
-    #     print 'simulation round', i, 'takes', t1, 'seconds'
+    for i in xrange(20):
+        t0 = time.clock()
+        game.new_project()
+        game.run()
+        t1 = time.clock() - t0
+        print 'simulation round', i, 'takes', t1, 'seconds'
     game.export("result.csv")

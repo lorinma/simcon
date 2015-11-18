@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS "Fact_Project" (
   `QualityCheck`	INTEGER NOT NULL DEFAULT 0,
   `PriorityChange`	INTEGER NOT NULL DEFAULT 0,
   `TaskSelectionFunction`	INTEGER NOT NULL DEFAULT 0,
-  `CollisionInformationExchnage`	INTEGER NOT NULL DEFAULT 1,
+  `CollisionInformationExchange`	INTEGER NOT NULL DEFAULT 1,
   `Done`	INTEGER NOT NULL DEFAULT 0
 );
 
@@ -388,8 +388,8 @@ CREATE VIEW IF NOT EXISTS True_SubWorking as
   FROM View_SubWorking
   WHERE View_SubWorking.KnowledgeOwner=View_SubWorking.SubName;
 
--- DROP VIEW IF EXISTS View_TaskBacklog;
--- CREATE VIEW IF NOT EXISTS View_TaskBacklog as
+DROP VIEW IF EXISTS View_TaskBacklog;
+CREATE VIEW IF NOT EXISTS View_TaskBacklog as
 SELECT Backlog.ProjectID,Backlog.KnowledgeOwner,Backlog.Day,Backlog.TaskID,Backlog.RemainingQty,Backlog.TotalQty,Backlog.SubName,Backlog.Floor,Backlog.WorkMethod,Backlog.PerformanceStd,1-RemainingQty/TotalQty TaskCompleteness,ProductionRate,WorkSpacePriority,FloorCompleteness,WorkMethodCompleteness, random()%1000 Ran, FloorTotalWork, WorkMethodTotalWork, RemainingQty/FloorTotalWork SignificanceToFloor, RemainingQty/WorkMethodTotalWork SignificanceToWorkMethod
 FROM (
        SELECT
@@ -568,13 +568,13 @@ CREATE VIEW IF NOT EXISTS True_LatestCollision as
              ProjectID,
              Floor,
              COUNT(*) Crews,
-             CollisionInformationExchnage
+             CollisionInformationExchange
            FROM True_AssignedTasks
              LEFT JOIN Fact_Project
                ON ProjectID=Fact_Project.ID
            GROUP BY ProjectID, Floor
          )
-         WHERE Crews > 1 AND CollisionInformationExchnage>0
+         WHERE Crews > 1 AND CollisionInformationExchange>0
        ) Collision
     LEFT JOIN True_TaskLatest
       ON Collision.ProjectID = True_TaskLatest.ProjectID AND Collision.Floor = True_TaskLatest.Floor
@@ -693,6 +693,11 @@ CREATE VIEW IF NOT EXISTS True_DesignChangeRandom as
     INNER JOIN Fact_Task
       ON Change.TaskID=Fact_Task.TaskID;
 
+
+DROP VIEW IF EXISTS True_LatestDesignChange;
+CREATE VIEW IF NOT EXISTS True_LatestDesignChange as
+SELECT * FROM (SELECT * FROM Event_DesignChange ORDER BY TaskID,Day) GROUP BY TaskID;
+
 -- -- For Manager use
 -- DROP VIEW IF EXISTS True_TaskLatestRandomFloor;
 -- CREATE VIEW IF NOT EXISTS True_TaskLatestRandomFloor AS
@@ -725,6 +730,7 @@ CREATE VIEW IF NOT EXISTS True_TaskQualityUncheck as
                       LEFT JOIN Fact_Project
                         ON Event_QualityCheck.ProjectID = Fact_Project.ID
                     WHERE Fact_Project.Done = 0
+                    ORDER BY TaskID,Day
                   )
                   GROUP BY ProjectID,TaskID
                 )
@@ -745,6 +751,11 @@ CREATE VIEW IF NOT EXISTS True_TaskFinishedQualityUncheck AS
          AND True_TaskQualityUncheck.WorkMethod=True_WorkMethodCompleteness.WorkMethod
     INNER JOIN Fact_TaskDetail ON Fact_TaskDetail.TaskID=Latest.TaskID;
 
+DROP VIEW IF EXISTS True_LatestQualityFail;
+CREATE VIEW IF NOT EXISTS True_LatestQualityFail as
+--last quality fail event of a task
+SELECT * FROM (SELECT * FROM Event_QualityCheck WHERE Pass=0 ORDER BY TaskID,Day) GROUP BY TaskID;
+
 
 DROP VIEW IF EXISTS True_UnfinishedProject;
 CREATE VIEW IF NOT EXISTS True_UnfinishedProject as
@@ -757,7 +768,7 @@ CREATE VIEW IF NOT EXISTS True_UnfinishedProject as
 
 DROP VIEW IF EXISTS True_TaskTrace;
 CREATE VIEW IF NOT EXISTS True_TaskTrace as
-  SELECT Floor||'-'||WorkMethod WPName, Day, Status, SubName, Floor, WorkMethod, TaskID, ProjectID
+  SELECT Floor||'-'||WorkMethod WPName, Day, Status, SubName, Floor, WorkMethod, TaskID, ProjectID, BeginDay
   FROM
     (
       SELECT
@@ -768,7 +779,8 @@ CREATE VIEW IF NOT EXISTS True_TaskTrace as
         Floor,
         WorkMethod,
         1 - RemainingQty / TotalQty     Completeness,
-        Floor - RemainingQty / TotalQty Status
+        Floor - RemainingQty / TotalQty Status,
+        0 BeginDay
       FROM Log_Task
         LEFT JOIN Fact_TaskDetail
           ON Log_Task.TaskID = Fact_TaskDetail.TaskID
@@ -783,7 +795,8 @@ CREATE VIEW IF NOT EXISTS True_TaskTrace as
         Floor,
         WorkMethod,
         0         Completeness,
-        Floor - 1 Status
+        Floor - 1 Status,
+        1 BeginDay
       FROM Event_WorkBegin
         LEFT JOIN Fact_TaskDetail
           ON Fact_TaskDetail.TaskID = Event_WorkBegin.TaskID
@@ -792,38 +805,48 @@ CREATE VIEW IF NOT EXISTS True_TaskTrace as
 
 DROP VIEW IF EXISTS _Result;
 CREATE VIEW IF NOT EXISTS _Result as
-  SELECT True_TaskTrace.*,
-    CASE WHEN (Event_Retrace.Day ISNULL ) THEN 0 ELSE 1 END NotMature,
-    CASE WHEN (Event_RetracePredecessor.Day ISNULL ) THEN 0 ELSE 1 END PredecessorIncomplete,
-    CASE WHEN (Event_RetraceWorkSpace.Day ISNULL ) THEN 0 ELSE 1 END WorkSpaceCongestion,
-    CASE WHEN (Event_RetraceExternalCondition.Day ISNULL ) THEN 0 ELSE 1 END ExternalCondition,
-    CASE WHEN (Event_DesignChange.Day ISNULL ) THEN 0 ELSE 1 END DesignChange,
-    CASE WHEN (Pass==0) THEN 1 ELSE 0 END QualityFail
-  FROM True_TaskTrace
-    LEFT JOIN Event_Retrace
-      ON True_TaskTrace.ProjectID=Event_Retrace.ProjectID AND
-         True_TaskTrace.TaskID=Event_Retrace.TaskID AND
-         True_TaskTrace.Day=Event_Retrace.Day
-    LEFT JOIN Event_RetracePredecessor
-      ON True_TaskTrace.ProjectID=Event_RetracePredecessor.ProjectID AND
-         True_TaskTrace.TaskID=Event_RetracePredecessor.TaskID AND
-         True_TaskTrace.Day=Event_RetracePredecessor.Day
-    LEFT JOIN Event_RetraceWorkSpace
-      ON True_TaskTrace.ProjectID=Event_RetraceWorkSpace.ProjectID AND
-         True_TaskTrace.TaskID=Event_RetraceWorkSpace.TaskID AND
-         True_TaskTrace.Day=Event_RetraceWorkSpace.Day
-    LEFT JOIN Event_RetraceExternalCondition
-      ON True_TaskTrace.ProjectID=Event_RetraceExternalCondition.ProjectID AND
-         True_TaskTrace.TaskID=Event_RetraceExternalCondition.TaskID AND
-         True_TaskTrace.Day=Event_RetraceExternalCondition.Day
-    LEFT JOIN Event_DesignChange
-      ON True_TaskTrace.ProjectID=Event_DesignChange.ProjectID AND
-         True_TaskTrace.TaskID=Event_DesignChange.TaskID AND
-         True_TaskTrace.Day=Event_DesignChange.Day
-    LEFT JOIN Event_QualityCheck
-      on True_TaskTrace.ProjectID=Event_QualityCheck.ProjectID AND
-         True_TaskTrace.TaskID=Event_QualityCheck.TaskID AND
-         True_TaskTrace.Day=Event_QualityCheck.Day;
+  SELECT *,CASE WHEN (QualityWaste=1 OR DesignWaste=1) THEN 1 ELSE 0 END WasteDay,CASE WHEN (NotMature<1 AND QualityWaste<1 AND DesignWaste<1 AND BeginDay<1) THEN 1 ELSE 0 END AddValue FROM (
+    SELECT True_TaskTrace.*,
+      CASE WHEN (Event_Retrace.Day ISNULL ) THEN 0 ELSE 1 END NotMature,
+      CASE WHEN (Event_RetracePredecessor.Day ISNULL ) THEN 0 ELSE 1 END PredecessorIncomplete,
+      CASE WHEN (Event_RetraceWorkSpace.Day ISNULL ) THEN 0 ELSE 1 END WorkSpaceCongestion,
+      CASE WHEN (Event_RetraceExternalCondition.Day ISNULL ) THEN 0 ELSE 1 END ExternalCondition,
+      CASE WHEN (Event_DesignChange.Day ISNULL ) THEN 0 ELSE 1 END DesignChange,
+      CASE WHEN (Event_QualityCheck.Pass==0) THEN 1 ELSE 0 END QualityFail,
+      CASE WHEN (True_TaskTrace.Day<=True_LatestQualityFail.Day) THEN 1 ELSE 0 END QualityWaste,
+      CASE WHEN (True_TaskTrace.Day<=True_LatestDesignChange.Day) THEN 1 ELSE 0 END DesignWaste
+
+    FROM True_TaskTrace
+      LEFT JOIN Event_Retrace
+        ON True_TaskTrace.ProjectID=Event_Retrace.ProjectID AND
+           True_TaskTrace.TaskID=Event_Retrace.TaskID AND
+           True_TaskTrace.Day=Event_Retrace.Day
+      LEFT JOIN Event_RetracePredecessor
+        ON True_TaskTrace.ProjectID=Event_RetracePredecessor.ProjectID AND
+           True_TaskTrace.TaskID=Event_RetracePredecessor.TaskID AND
+           True_TaskTrace.Day=Event_RetracePredecessor.Day
+      LEFT JOIN Event_RetraceWorkSpace
+        ON True_TaskTrace.ProjectID=Event_RetraceWorkSpace.ProjectID AND
+           True_TaskTrace.TaskID=Event_RetraceWorkSpace.TaskID AND
+           True_TaskTrace.Day=Event_RetraceWorkSpace.Day
+      LEFT JOIN Event_RetraceExternalCondition
+        ON True_TaskTrace.ProjectID=Event_RetraceExternalCondition.ProjectID AND
+           True_TaskTrace.TaskID=Event_RetraceExternalCondition.TaskID AND
+           True_TaskTrace.Day=Event_RetraceExternalCondition.Day
+      LEFT JOIN Event_DesignChange
+        ON True_TaskTrace.ProjectID=Event_DesignChange.ProjectID AND
+           True_TaskTrace.TaskID=Event_DesignChange.TaskID AND
+           True_TaskTrace.Day=Event_DesignChange.Day
+      LEFT JOIN Event_QualityCheck
+        on True_TaskTrace.ProjectID=Event_QualityCheck.ProjectID AND
+           True_TaskTrace.TaskID=Event_QualityCheck.TaskID AND
+           True_TaskTrace.Day=Event_QualityCheck.Day
+      LEFT JOIN True_LatestQualityFail
+        ON True_TaskTrace.TaskID=True_LatestQualityFail.TaskID
+      LEFT JOIN True_LatestDesignChange
+        ON True_TaskTrace.TaskID=True_LatestDesignChange.TaskID
+    ORDER BY True_TaskTrace.TaskID,True_TaskTrace.Day
+);
 
 DROP VIEW IF EXISTS _ResultRich;
 CREATE VIEW IF NOT EXISTS _ResultRich as
@@ -833,3 +856,5 @@ CREATE VIEW IF NOT EXISTS _ResultRich as
       ON Fact_Project.ID=_Result.ProjectID;
 
 COMMIT;
+
+SELECT * FROM Event_RetraceExternalCondition WHERE TaskID=71
