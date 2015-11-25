@@ -162,14 +162,6 @@ CREATE TABLE IF NOT EXISTS "Event_QualityCheck" (
   FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project ( ID )
 );
 
-DROP TABLE IF EXISTS "Event_Meeting";
-CREATE TABLE IF NOT EXISTS "Event_Meeting" (
-  `ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-  `ProjectID`	INTEGER NOT NULL,
-  `Day`	INTEGER NOT NULL,
-  FOREIGN KEY(`ProjectID`) REFERENCES Fact_Project(ID)
-);
-
 DROP TABLE IF EXISTS "Event_DesignChange";
 CREATE TABLE IF NOT EXISTS "Event_DesignChange" (
   `ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -192,6 +184,13 @@ CREATE TABLE IF NOT EXISTS "Event_WorkBegin" (
 );
 
 ------------------------------------------------------------------------------------------------------------------------------
+
+
+DROP VIEW IF EXISTS Event_Meeting;
+CREATE VIEW IF NOT EXISTS Event_Meeting as
+  SELECT ProjectID,Day FROM (SELECT ID,MeetingCycle FROM Fact_Project WHERE MeetingCycle>0)
+  LEFT JOIN True_TaskTrace ON ID=ProjectID
+  WHERE Day%MeetingCycle=0 AND Day>0;
 
 DROP VIEW IF EXISTS Fact_TaskDetail;
 CREATE VIEW IF NOT EXISTS Fact_TaskDetail as
@@ -857,4 +856,74 @@ CREATE VIEW IF NOT EXISTS _ResultRich as
 
 COMMIT;
 
-SELECT * FROM Event_RetraceExternalCondition WHERE TaskID=71
+
+DROP VIEW IF EXISTS True_InfoExchange;
+CREATE VIEW IF NOT EXISTS True_InfoExchange as
+  SELECT AllMeet.*,TaskID FROM (
+                               SELECT
+                                 PureCollision.ProjectID,
+                                 PureCollision.Day,
+                                 Trace.SubName,
+                                 'RandomMeeting' Type
+                               FROM (
+                                      SELECT
+                                        Collision.ProjectID,
+                                        Collision.Floor,
+                                        Collision.Day,
+                                        'Collision' Type
+                                      FROM (
+                                             SELECT
+                                               ProjectID,
+                                               Floor,
+                                               Day
+                                             FROM (
+                                               SELECT
+                                                 ProjectID,
+                                                 Floor,
+                                                 COUNT(*) Crews,
+                                                 CollisionInformationExchange,
+                                                 Day
+                                               FROM True_TaskTrace
+                                                 LEFT JOIN Fact_Project
+                                                   ON ProjectID = Fact_Project.ID
+                                               WHERE CollisionInformationExchange > 0 AND BeginDay = 0
+                                               GROUP BY ProjectID, Floor, Day
+                                             )
+                                             WHERE Crews > 1
+                                           ) Collision
+                                        LEFT JOIN Event_Meeting
+                                          ON Collision.ProjectID = Event_Meeting.ProjectID AND Collision.Day = Event_Meeting.Day
+                                      WHERE Event_Meeting.Day ISNULL
+                                    ) PureCollision
+                                 LEFT JOIN (SELECT *
+                                            FROM True_TaskTrace
+                                            WHERE BeginDay = 0) Trace
+                                   ON PureCollision.ProjectID = Trace.ProjectID AND PureCollision.Floor = Trace.Floor AND
+                                      PureCollision.Day = Trace.Day
+                               UNION
+                               SELECT
+                                 Meet.ProjectID,
+                                 Day,
+                                 Meet.SubName,
+                                 'Meeting' Type
+                               FROM (
+                                      SELECT
+                                        Event_Meeting.ProjectID,
+                                        Day,
+                                        SubName
+                                      FROM Event_Meeting
+                                        LEFT JOIN Fact_Sub
+                                          ON Event_Meeting.ProjectID = Fact_Sub.ProjectID
+                                    )Meet
+                             )AllMeet
+  LEFT JOIN Fact_TaskDetail
+    ON AllMeet.SubName=Fact_TaskDetail.SubName AND AllMeet.ProjectID=Fact_TaskDetail.ProjectID
+
+
+DROP VIEW IF EXISTS True_InfoFlow;
+CREATE VIEW IF NOT EXISTS True_InfoFlow as
+SELECT Trace.ProjectID,Trace.Day, CASE WHEN (InformationAmount NOTNULL ) THEN InformationAmount ELSE 0 END Information, CASE WHEN (Type NOTNULL ) THEN Type ELSE 'No Meeting' END Type FROM (SELECT * FROM True_TaskTrace WHERE BeginDay=0) Trace LEFT JOIN (
+  SELECT ProjectID,Day,Type,COUNT(Day) InformationAmount FROM True_InfoExchange
+  GROUP BY ProjectID,Day,Type
+) Exchange
+ON Exchange.ProjectID=Trace.ProjectID AND Exchange.Day=Trace.Day;

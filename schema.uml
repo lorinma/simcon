@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>594ed447-87d4-412d-aa11-4a30cafcb664.schema:</OriginalElement>
+  <nodes>
+    <node x="150.5" y="1056.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_RetraceExternalCondition</node>
+    <node x="1799.0" y="60.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_WorkSpacePriority</node>
+    <node x="1214.5" y="1216.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_RetraceWorkSpace</node>
+    <node x="1779.0" y="556.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project</node>
+    <node x="1193.0" y="1432.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Task</node>
+    <node x="669.0" y="976.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_WorkBegin</node>
+    <node x="2425.5" y="108.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Sub</node>
+    <node x="2399.0" y="580.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_Task</node>
+    <node x="1809.5" y="1456.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_RetracePredecessor</node>
+    <node x="-21.0" y="604.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_QualityCheck</node>
+    <node x="939.0" y="1084.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_DesignChange</node>
+    <node x="1428.0" y="96.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_WorkSpace</node>
+    <node x="2129.0" y="312.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_ProductionRate</node>
+    <node x="389.0" y="856.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_Retrace</node>
+    <node x="1559.0" y="1348.0">594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_Meeting</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_RetraceExternalCondition" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="0.0" y="-64.0" />
+      <point x="280.0" y="720.0" />
+      <point x="-141.0" y="40.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_Task" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Task">
+      <point x="0.0" y="100.0" />
+      <point x="2520.0" y="1680.0" />
+      <point x="1320.0" y="1680.0" />
+      <point x="0.0" y="88.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_ProductionRate" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Sub">
+      <point x="0.0" y="-88.0" />
+      <point x="2240.0" y="200.0" />
+      <point x="-94.5" y="40.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_WorkBegin" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="91.0" y="-0.0" />
+      <point x="1840.0" y="1040.0" />
+      <point x="-80.0" y="124.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_RetracePredecessor" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Task">
+      <point x="-110.5" y="-0.0" />
+      <point x="127.0" y="-0.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_QualityCheck" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Task">
+      <point x="0.0" y="76.0" />
+      <point x="80.0" y="1520.0" />
+      <point x="-127.0" y="-0.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_QualityCheck" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="101.0" y="-0.0" />
+      <point x="-141.0" y="-0.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_RetraceWorkSpace" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Task">
+      <point x="0.0" y="64.0" />
+      <point x="0.0" y="-88.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_WorkSpacePriority" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_WorkSpace">
+      <point x="-121.0" y="-0.0" />
+      <point x="132.0" y="-0.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_Meeting" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="81.0" y="-0.0" />
+      <point x="1900.0" y="1400.0" />
+      <point x="-20.0" y="124.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_RetraceExternalCondition" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Task">
+      <point x="0.0" y="64.0" />
+      <point x="280.0" y="1500.0" />
+      <point x="-127.0" y="-20.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_Retrace" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Task">
+      <point x="0.0" y="64.0" />
+      <point x="480.0" y="1480.0" />
+      <point x="-127.0" y="-40.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_ProductionRate" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="-111.0" y="-0.0" />
+      <point x="1960.0" y="400.0" />
+      <point x="40.0" y="-124.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_DesignChange" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Task">
+      <point x="0.0" y="76.0" />
+      <point x="1040.0" y="1440.0" />
+      <point x="-127.0" y="-80.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_WorkSpacePriority" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Sub">
+      <point x="121.0" y="-0.0" />
+      <point x="-94.5" y="-0.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_Task" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Sub">
+      <point x="0.0" y="-100.0" />
+      <point x="0.0" y="52.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_RetraceWorkSpace" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="105.5" y="-0.0" />
+      <point x="1880.0" y="1280.0" />
+      <point x="-40.0" y="124.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_RetracePredecessor" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="0.0" y="-64.0" />
+      <point x="0.0" y="124.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_WorkSpacePriority" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="0.0" y="100.0" />
+      <point x="0.0" y="-124.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Log_Task" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="-121.0" y="-0.0" />
+      <point x="141.0" y="-0.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_Retrace" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="91.0" y="-0.0" />
+      <point x="1820.0" y="920.0" />
+      <point x="-100.0" y="124.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_WorkBegin" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Task">
+      <point x="0.0" y="64.0" />
+      <point x="760.0" y="1460.0" />
+      <point x="-127.0" y="-60.0" />
+    </edge>
+    <edge source="594ed447-87d4-412d-aa11-4a30cafcb664.table:Event_DesignChange" target="594ed447-87d4-412d-aa11-4a30cafcb664.table:Fact_Project">
+      <point x="101.0" y="-0.0" />
+      <point x="1860.0" y="1160.0" />
+      <point x="-60.0" y="124.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="1493.5" y="924.5" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Key columns</Category>
+    <Category>Columns</Category>
+  </Categories>
+</Diagram>
+

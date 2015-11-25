@@ -39,7 +39,6 @@ class Simulation:
         """
         self.engine = create_engine("sqlite:///simcon")
         self.engine.execute("delete from Event_DesignChange where ProjectID not in (select ID from Fact_Project where Done=1);")
-        self.engine.execute("delete from Event_Meeting where ProjectID not in (select ID from Fact_Project where Done=1);")
         self.engine.execute("delete from Event_QualityCheck where ProjectID not in (select ID from Fact_Project where Done=1);")
         self.engine.execute("delete from Event_Retrace where ProjectID not in (select ID from Fact_Project where Done=1);")
         self.engine.execute("delete from Event_WorkBegin where ProjectID not in (select ID from Fact_Project where Done=1);")
@@ -425,10 +424,13 @@ class Simulation:
             index=False)
         print "result exported to", filename
 
+        info_flow_result = pd.read_sql_query("SELECT * FROM True_InfoFlow ", self.engine)
+        info_flow_result['Date'] = pd.to_timedelta(result['Day'], unit='d') + datetime.date(2015, 1, 1)
+        info_flow_result[['ProjectID', 'Date', 'Day', 'Type','Information']].to_csv('information.csv', sep='\t', encoding='utf-8',index=False)
 
 if __name__ == '__main__':
     game = Simulation()
-    for i in xrange(20):
+    for i in xrange(10):
         t0 = time.clock()
         game.new_project()
         game.run()
